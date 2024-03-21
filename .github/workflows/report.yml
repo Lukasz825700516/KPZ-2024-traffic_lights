@@ -39,7 +39,7 @@ jobs:
       # Runs a single command using the runners shell
       - name: Compile report
         run: |
-          for f in doc/*.md; do
+          for f in report/*.md; do
             cat "${f}"
             echo
           done | pandoc -o artifacts/report.pdf
