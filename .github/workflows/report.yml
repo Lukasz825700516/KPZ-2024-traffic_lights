@@ -39,6 +39,7 @@ jobs:
       # Runs a single command using the runners shell
       - name: Compile report
         run: |
+          mkdir artifacts
           for f in report/*.md; do
             cat "${f}"
             echo
