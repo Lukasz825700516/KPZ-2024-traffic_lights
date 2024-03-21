@@ -1,0 +1,77 @@
+# This is a basic workflow to help you get started with Actions
+
+name: CI
+
+# Controls when the workflow will run
+on:
+  # Triggers the workflow on push or pull request events but only for the "main" branch
+  push:
+    branches: [ "master" ]
+    tags:
+      - 'v*'
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  # This workflow contains a single job called "build"
+  generate-report:
+    # The type of runner that the job will run on
+    runs-on: ubuntu-latest
+
+    container:
+      image: pandoc/latex:3.1.1.0
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v4
+        with:
+          # for git log history
+          fetch-depth: 0
+
+      - name: Get Changes between Tags
+        id: changes
+        if: steps.version.outputs.changed == 'true'
+        uses: simbo/changes-between-tags-action@v1
+
+      # Runs a single command using the runners shell
+      - name: Compile report
+        run: |
+          for f in doc/*.md; do
+            cat "${f}"
+            echo
+          done | pandoc -o artifacts/report.pdf
+
+      - name: Archive project artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: artifacts
+          path: |
+            artifacts/*.pdf
+
+      - name: Create release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: Release ${{ github.ref }}
+          body: |
+            ${{ steps.changes.outputs.tag }}
+            changes ${{ steps.changes.outputs.changes }}
+          draft: false
+          prerelease: false
+
+      - name: Release report
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: artifacts/report.pdf
+          asset_name: report.pdf
+          asset_content_type: application/pdf
+
+
