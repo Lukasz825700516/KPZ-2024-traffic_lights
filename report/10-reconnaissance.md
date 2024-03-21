@@ -27,10 +27,10 @@ of image segmentation. For that we checked how long it takes for selected models
 image, which should give us rough estimate of capability for real time video processing.
 
 
---------------------------- ----------------
-model                        time (seconds)
-FasterRCNN_ResNet50_FPN_V2   5
-Hybridnets                   0.9 sekund
-YOLOP                        TODO
-SSD                          TODO
+| model                        | time (seconds) |
+| --------------------------- | ---------------- |
+| FasterRCNN_ResNet50_FPN_V2   | 5 |
+| Hybridnets                   | 0.9 sekund |
+| YOLOP                        | TODO |
+| SSD                          | TODO |
 
