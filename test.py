@@ -1,0 +1,4 @@
+def main():
+    awdnufansekjfngrudnjbkelbsnkilsenbjsenjgnbelsjn = 'awdnjawnfvknefvjknnkawrnf nawkjnvnkanwjknakrwncjknr akwrnvkanwrvknjnawjkvngknj awrjvknjkawnrvkjanrkjwv nkj awkrvnjkjawnrvkjnakjwnrnvkjnawb kajwrnvkjnawkrjvnjkawr'
+
+    print(awdnufansekjfngrudnjbkelbsnkilsenbjsenjgnbelsjn, awdnufansekjfngrudnjbkelbsnkilsenbjsenjgnbelsjn, awdnufansekjfngrudnjbkelbsnkilsenbjsenjgnbelsjn, awdnufansekjfngrudnjbkelbsnkilsenbjsenjgnbelsjn, awdnufansekjfngrudnjbkelbsnkilsenbjsenjgnbelsjn)
