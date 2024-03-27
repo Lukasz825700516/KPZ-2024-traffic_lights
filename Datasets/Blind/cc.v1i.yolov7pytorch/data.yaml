@@ -1,0 +1,13 @@
+train: ../train/images
+val: ../valid/images
+test: ../test/images
+
+nc: 1
+names: ['0']
+
+roboflow:
+  workspace: test-nrrin
+  project: cc-crf0h
+  version: 1
+  license: CC BY 4.0
+  url: https://universe.roboflow.com/test-nrrin/cc-crf0h/dataset/1
