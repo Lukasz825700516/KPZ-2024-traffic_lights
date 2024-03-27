@@ -9,10 +9,13 @@ Suitcase:
 https://www.kaggle.com/datasets/dataclusterlabs/suitcaseluggage-dataset
 
 Wheelchair:
-https://universe.roboflow.com/obj-detection-gmggm/objectdetect-iga7u
-
+https://universe.roboflow.com/obj-detection-gmggm/objectdetect-iga7u  
 
 #
-Labels for datasets were created in YOLOv7 .txt format (more here: https://roboflow.com/formats/yolov7-pytorch-txt)
+Labels for datasets were created in YOLOv7 .txt format  
+(more here: https://roboflow.com/formats/yolov7-pytorch-txt)
+
+
+Datasets are divided to train/vaild/test sets (70%/20%/10%)
 
 ![Test script](../scripts/test_import_datasets.py)
