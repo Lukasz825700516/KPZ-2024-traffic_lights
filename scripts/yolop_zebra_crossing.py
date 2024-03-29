@@ -1,11 +1,13 @@
+"""Script with configuration of model that will be used in the project"""
+
 import torch
-import torch.nn as nn
+from torch import nn
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 # Model will be composed of pretrained weights except for the output layers
 model = torch.hub.load('ultralytics/yolov5', 'yolov5s', classes=5)
-#     1 osoby starsze 
+#     1 osoby starsze
 #     2 osoby z dziećmi
 #     3 osoby z wózkiem
 #     4 osoby z bagażem
@@ -19,4 +21,6 @@ for layer in model.parameters():
 for k, v in model.named_parameters():
     if 'model.24' in k:
         v.requires_grad = True
+
+print (model.fk)
 # ...
