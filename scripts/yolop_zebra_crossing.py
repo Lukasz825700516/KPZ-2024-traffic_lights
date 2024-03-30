@@ -14,12 +14,7 @@ model = torch.hub.load('ultralytics/yolov5', 'yolov5s', classes=5)
 #     5 grupa uczniów
 
 # Lock weights of all layers except the last one
-for layer in model.parameters():
-    layer.auto_grad = False
-
-
 for k, v in model.named_parameters():
-    if 'model.24' in k:
-        v.requires_grad = True
+    v.requires_grad = False
 
 # ...
