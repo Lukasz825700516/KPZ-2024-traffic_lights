@@ -22,5 +22,4 @@ for k, v in model.named_parameters():
     if 'model.24' in k:
         v.requires_grad = True
 
-print (model.fk)
 # ...
