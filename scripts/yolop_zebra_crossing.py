@@ -3,6 +3,7 @@
 import os
 import time
 import tempfile
+import itertools
 
 import torch
 import torch.utils.data
@@ -11,7 +12,12 @@ from torchvision.transforms import v2 as transforms_v2
 from torchvision import datasets
 
 
-DATA_DIR = 'Datasets'
+data_dirs = {
+    'blind': 'Datasets/Blind/cc.v1i.yolov7pytorch',
+    'child_eldery_adult': 'Datasets/Child_Elderly_Adult/DL.v2i.yolov7pytorch',
+    'suitcase': 'Datasets/Suitcase/suitcase.v1i.yolov7pytorch',
+    'wheelchair': 'Datasets/Wheelchair/wheelchair.v1i.yolov7pytorch',
+}
 BATCH_SIZE=4
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
@@ -39,20 +45,26 @@ PHASE_TRAIN = 'train'
 PHASE_TEST = 'test'
 phases = [PHASE_TRAIN, PHASE_TEST]
 data_sets = {
-    purpose: datasets.ImageFolder(os.path.join(DATA_DIR, purpose))
-    for purpose in phases
+    klass: {
+        purpose: datasets.ImageFolder(os.path.join(path, purpose))
+        for purpose in phases
+    } for klass, path in data_dirs.items()
 }
 data_loaders = {
-    purpose: torch.utils.data.DataLoader(
-        data_sets[purpose],
-        batch_size=BATCH_SIZE,
-        shuffle=True,
-        num_workers=4
-    ) for purpose in phases
+    klass: {
+        purpose: torch.utils.data.DataLoader(
+            data_sets[klass][purpose],
+            batch_size=BATCH_SIZE,
+            shuffle=True,
+            num_workers=4
+        ) for purpose in phases
+    } for klass in data_dirs
 }
 data_sizes = {
-    purpose: len(data_loaders[purpose])
-    for purpose in phases
+    klass: {
+        purpose: len(data_loaders[purpose])
+        for purpose in phases
+    } for klass in data_dirs
 }
 
 
@@ -91,7 +103,8 @@ def train_model(
                 running_corrects = 0
 
                 # Iterate over data.
-                for inputs, labels in data_loaders[phase]:
+                loaders = [loader[phase] for loader in data_loaders.values()]
+                for inputs, labels in itertools.chain(loaders):
                     inputs = inputs.to(device)
                     labels = labels.to(device)
 
