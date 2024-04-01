@@ -18,7 +18,7 @@ data_dirs = {
     'suitcase': 'Datasets/Suitcase/suitcase.v1i.yolov7pytorch',
     'wheelchair': 'Datasets/Wheelchair/wheelchair.v1i.yolov7pytorch',
 }
-BATCH_SIZE=4
+BATCH_SIZE=32
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
@@ -44,6 +44,11 @@ transform = transforms_v2.Compose([
 PHASE_TRAIN = 'train'
 PHASE_TEST = 'test'
 phases = [PHASE_TRAIN, PHASE_TEST]
+
+for path in data_dirs.values():
+    if not os.path.isdir(path):
+        raise FileNotFoundError(f'Directory "{path}" doesn\'t exists')
+
 data_sets = {
     klass: {
         purpose: datasets.ImageFolder(os.path.join(path, purpose))
@@ -135,7 +140,7 @@ def train_model(
                 print(f'{phase} Loss: {epoch_loss:.4f} Acc: {epoch_acc:.4f}')
 
                 # deep copy the model
-                if phase == 'val' and epoch_acc > best_acc:
+                if phase == PHASE_TEST and epoch_acc > best_acc:
                     best_acc = epoch_acc
                     torch.save(model.state_dict(), best_model_params_path)
 
