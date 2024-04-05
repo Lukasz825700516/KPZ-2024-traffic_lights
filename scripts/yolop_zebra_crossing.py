@@ -30,15 +30,6 @@ version = project.version(4)
 datasetChildrenElderyAdults = version.download("yolov8")
 
 
-
-
-
-data_dirs = {
-    'blind': 'Datasets/Blind/cc.v1i.yolov7pytorch',
-    'child_eldery_adult': datasetChildrenElderyAdults.location,
-    'suitcase': 'Datasets/Suitcase/suitcase.v1i.yolov7pytorch',
-    'wheelchair': datasetWheelchair.location,
-}
 BATCH_SIZE=32
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
@@ -55,20 +46,9 @@ model = torch.hub.load('ultralytics/yolov5', 'yolov5s', classes=5)
 for k, v in model.named_parameters():
     v.requires_grad = False
 
-transform = transforms_v2.Compose([
-    transforms_v2.RandomResizedCrop(size=(640,640)),
-    transforms_v2.RandomHorizontalFlip(),
-    transforms_v2.ToTensor(),
-    transforms_v2.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225]) # mean, deviation
-])
-
 PHASE_TRAIN = 'train'
 PHASE_TEST = 'test'
 phases = [PHASE_TRAIN, PHASE_TEST]
-
-for path in data_dirs.values():
-    if not os.path.isdir(path):
-        raise FileNotFoundError(f'Directory "{path}" doesn\'t exists')
 
 
 # data_sets = {
