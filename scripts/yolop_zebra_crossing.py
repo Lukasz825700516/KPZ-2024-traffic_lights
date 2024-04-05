@@ -97,9 +97,21 @@ for path in data_dirs.values():
 # # 
 
 
-dataset = ultralytics.data.dataset.ClassificationDataset(data_dirs['wheelchair'], {
-    'imgsz':640, 'fraction':0.4, 'scale':1, 'fliplr':False, 'flipud':False, 'cache':True, 'auto_augument':False, 'hsv_h':False, 'hsv_s':False, 'hsv_v':False, 'crop_fraction':0.9
-    })
+class NamespaceStuff:
+    def __init__(self):
+        self.imgsz = 640
+        self.fraction = 0.4
+        self.scale = 1
+        self.fliplr = False
+        self.flipud = False
+        self.cache = True
+        self.auto_augument = True
+        self.hsv_h = False
+        self.hsv_s = False
+        self.hsv_v = False
+        self.crop_fraction = 0.1
+
+dataset = ultralytics.data.dataset.ClassificationDataset('Datasets', NamespaceStuff())
 dataset_loader = torch.utils.data.DataLoader(dataset)
 
 
@@ -138,8 +150,7 @@ def train_model(
                 running_corrects = 0
 
                 # Iterate over data.
-                loaders = [loader[phase] for loader in data_loaders.values()]
-                for inputs, labels in itertools.chain(loaders):
+                for inputs, labels in dataset_loader:
                     inputs = inputs.to(device)
                     labels = labels.to(device)
 
@@ -164,8 +175,8 @@ def train_model(
                 if phase == 'train':
                     scheduler.step()
 
-                epoch_loss = running_loss / data_sizes[phase]
-                epoch_acc = float(running_corrects) / data_sizes[phase]
+                epoch_loss = running_loss / len(dataset_loader.imgs)
+                epoch_acc = float(running_corrects) / len(dataset_loader.imgs)
 
                 print(f'{phase} Loss: {epoch_loss:.4f} Acc: {epoch_acc:.4f}')
 
