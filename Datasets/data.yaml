@@ -6,12 +6,6 @@ names:
 - Blind
 - Suitcase
 nc: 6
-roboflow:
-  license: CC BY 4.0
-  project: objectdetect-iga7u
-  url: https://universe.roboflow.com/obj-detection-gmggm/objectdetect-iga7u/dataset/4
-  version: 4
-  workspace: obj-detection-gmggm
 path: ../KPZ-2024-traffic_lights/Datasets
 test: test/images
 train: train/images
