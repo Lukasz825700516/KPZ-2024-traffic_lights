@@ -51,32 +51,6 @@ PHASE_TEST = 'test'
 phases = [PHASE_TRAIN, PHASE_TEST]
 
 
-# data_sets = {
-    # klass: {
-        # purpose: datasets.ImageFolder(os.path.join(path, purpose))
-        # for purpose in phases
-    # } for klass, path in data_dirs.items()
-# }
-# data_loaders = {
-    # klass: {
-        # purpose: torch.utils.data.DataLoader(
-            # data_sets[klass][purpose],
-            # batch_size=BATCH_SIZE,
-            # shuffle=True,
-            # num_workers=4,
-            # collate_fn=lambda batch: tuple(zip(*batch)),
-        # ) for purpose in phases
-    # } for klass in data_dirs
-# }
-# data_sizes = {
-    # klass: {
-        # purpose: len(data_loaders[purpose])
-        # for purpose in phases
-    # } for klass in data_dirs
-# }
-# # 
-
-
 class NamespaceStuff:
     def __init__(self):
         self.imgsz = 640
