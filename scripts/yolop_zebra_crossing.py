@@ -175,5 +175,10 @@ def train_model(
         model.load_state_dict(torch.load(best_model_params_path))
     return model
 
+criterion = nn.CrossEntropyLoss()
+optimizer = torch.optim.SGD(model.parameters(), lr=0.001, momentum=0.9)
+scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=7, gamma=0.1)
+
+train_model(model, criterion, optimizer, scheduler)
 
 # ...
