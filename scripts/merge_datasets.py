@@ -2,10 +2,48 @@ import sys
 import shutil
 from pathlib import Path
 import itertools
+import os
+from dotenv import load_dotenv
+
+def load_roboflow_api_key():
+    load_dotenv() # load environment variables from .env file to os.environ
+
+    key = os.environ.get('ROBOFLOW_API_KEY')
+    if key == None:
+        print('Set ROBOFLOW_API_KEY in .env file to download datasets')
+        sys.exit(1)
+
+    return key
 
 class_for_wheelchair = 3
 class_for_blind = 4
 class_for_suitcase = 5
+
+# TODO: Download datasets via CLI, https://docs.roboflow.com/roboflow-cli/download-dataset
+
+def download_roboflow_datasets():
+    download_location = './Datasets'
+    format = 'yolov8'
+    datasets = {
+        'Stroller' : 'thales-a5kye/stroller_final/dataset/3',
+        'Child_Elderly_Adult' : 'gist-awllb/dl-bhh3b/dataset/4',
+        'Wheelchair' : 'obj-detection-gmggm/objectdetect-iga7u',
+        #'Blind' : '', # TODO: add a missing dataset
+        #'Suitcase' : ''  # TODO: add a missing dataset
+    }
+    
+    key = load_roboflow_api_key()
+
+    commands = [
+        f'Use this secret key: {key}',
+        'roboflow login',
+    ]
+
+    for dataset_name, dataset_url in datasets.items():
+        commands.append(f'roboflow download -f {format} -l {download_location}/{dataset_name} {dataset_url}')
+
+    os.system(' && '.join(commands))
+
 
 def validate_arguments():
     program_usage = 'Usage: python create_dataset.py <dataset_directory> <copy_instead_move>=True'
@@ -40,6 +78,8 @@ def modify_label_file(label_file, class_code):
 def main():
     validate_arguments()
 
+    download_roboflow_datasets()
+
     dataset_dir = Path(sys.argv[1]).resolve()
     copy_instead_move = len(sys.argv) == 3 and (sys.argv[2] in ('True', 'true', '1', 'copy_instead_move=True', 'copy_instead_move=true'))
 
@@ -61,7 +101,7 @@ def main():
             image_dir = new_path / 'images'
             label_dir = new_path / 'labels'
 
-            for image_file in image_dir.iterdir():
+            for image_file in image_dir.iterdir(): # TODO: fix these paths...
                 dest_dir = dataset_dir / dataset_directory / 'images' / image_file.name
                 copy_or_move_files(image_file, dest_dir, copy_instead_move)
 
