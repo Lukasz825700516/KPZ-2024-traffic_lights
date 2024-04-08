@@ -7,6 +7,8 @@ class_for_wheelchair = 3
 class_for_blind = 4
 class_for_suitcase = 5
 
+# TODO: Download datasets via CLI, https://docs.roboflow.com/roboflow-cli/download-dataset
+
 def validate_arguments():
     program_usage = 'Usage: python create_dataset.py <dataset_directory> <copy_instead_move>=True'
     available_options = [''.join(x) for x in itertools.product(['', 'copy_instead_move='], ['True', 'False', 'true', 'false', '1', '0']) ]
