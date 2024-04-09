@@ -1,7 +1,6 @@
 import sys
 import shutil
 from pathlib import Path
-import itertools
 import os
 from dotenv import load_dotenv
 
@@ -15,27 +14,21 @@ def load_roboflow_api_key():
 
     return key
 
-class_for_wheelchair = 3
-class_for_blind = 4
-class_for_suitcase = 5
-
-# TODO: Download datasets via CLI, https://docs.roboflow.com/roboflow-cli/download-dataset
-
 def download_roboflow_datasets():
     download_location = './Datasets'
     format = 'yolov8'
     datasets = {
         'Stroller' : 'thales-a5kye/stroller_final/dataset/3',
-        'Child_Elderly_Adult' : 'gist-awllb/dl-bhh3b/dataset/4',
-        'Wheelchair' : 'obj-detection-gmggm/objectdetect-iga7u',
-        #'Blind' : '', # TODO: add a missing dataset
-        #'Suitcase' : ''  # TODO: add a missing dataset
+        'Child_Elderly_Adult' : 'kpz2/child-adult-elderly/2',
+        'Wheelchair' : 'kpz2/wheelchair-grmuz/1',
+        'Blind' : 'kpz1/blind-vecl4/1',
+        'Suitcase' : 'kpz1/suitcase-8nzqz/1'
     }
     
     key = load_roboflow_api_key()
 
     commands = [
-        f'Use this secret key: {key}',
+        f'echo "Use this secret key: {key}"',
         'roboflow login',
     ]
 
@@ -46,23 +39,16 @@ def download_roboflow_datasets():
 
 
 def validate_arguments():
-    program_usage = 'Usage: python create_dataset.py <dataset_directory> <copy_instead_move>=True'
-    available_options = [''.join(x) for x in itertools.product(['', 'copy_instead_move='], ['True', 'False', 'true', 'false', '1', '0']) ]
-    if len(sys.argv) not in (2, 3):
+    program_usage = 'Usage: python create_dataset.py <dataset_directory>'
+    if len(sys.argv) != 2:
         print(program_usage)
         sys.exit(1)         
-    if len(sys.argv) == 3 and sys.argv[2] not in available_options:
-        print(itertools.product(['', 'copy_instead_move='], ['True', 'False', 'true', 'false', '1', '0']))
-        print(program_usage)
-        sys.exit(1)
 
-def copy_or_move_files(src_dir, dest_dir, copy_instead_move):
-    if copy_instead_move:
-        shutil.copy(src_dir, dest_dir)
-    else:
-        shutil.move(src_dir, dest_dir)
 
 def modify_label_file(label_file, class_code):
+    if class_code == None:
+        return
+
     with open(label_file, 'r') as f:
         label_lines = f.readlines()
 
@@ -81,44 +67,61 @@ def main():
     download_roboflow_datasets()
 
     dataset_dir = Path(sys.argv[1]).resolve()
-    copy_instead_move = len(sys.argv) == 3 and (sys.argv[2] in ('True', 'true', '1', 'copy_instead_move=True', 'copy_instead_move=true'))
 
-    dataset_parent_directories = ['Blind', 'Suitcase', 'Wheelchair', 'Child_Elderly_Adult']
-    dataset_directories = ['test', 'train', 'valid']
+    dataset_labels = {
+        'Wheelchair' : 3,
+        'Blind' : 4,
+        'Suitcase' : 5,
+        'Stroller' : 6
+    }
+
+
+    whole_datasets = [
+        'Blind',
+        'Suitcase',
+        'Wheelchair',
+        'Child_Elderly_Adult',
+        'Stroller'
+    ]
+    subsets = ['test', 'train', 'valid']
     subdirectories = ['images', 'labels']
-
-    # Create directory structure
-    for dataset_directory in dataset_directories:
+    
+    # Create the final directory structure
+    for dataset_directory in subsets:
         for subdirectory in subdirectories:
             (dataset_dir / dataset_directory / subdirectory).mkdir(parents=True, exist_ok=True)
+    
+    # Reassign classes
+    for dataset in whole_datasets:
 
-    for dataset_parent_directory in dataset_parent_directories:
-        parent_dir = dataset_dir / dataset_parent_directory
-        sub_dir = next(iter(parent_dir.iterdir()))
+        # Set the desired class id
+        class_id = None
+        if dataset != 'Child_Elderly_Adult':
+            class_id = dataset_labels[dataset]
+        else:
+            class_id = None
 
-        for dataset_directory in dataset_directories:
-            new_path = sub_dir / dataset_directory
-            image_dir = new_path / 'images'
-            label_dir = new_path / 'labels'
+        for subset in subsets:
+            subdirectory = 'labels'
+            path = dataset_dir / dataset / subset / subdirectory
+            for image_file in path.iterdir():
+                modify_label_file(image_file, class_id)
 
-            for image_file in image_dir.iterdir(): # TODO: fix these paths...
-                dest_dir = dataset_dir / dataset_directory / 'images' / image_file.name
-                copy_or_move_files(image_file, dest_dir, copy_instead_move)
 
-            for label_file in label_dir.iterdir():
-                if dataset_parent_directory == 'Blind':
-                    modify_label_file(label_file, class_for_blind)
-                elif dataset_parent_directory == 'Suitcase':
-                    modify_label_file(label_file, class_for_suitcase)
-                elif dataset_parent_directory == 'Wheelchair':
-                    modify_label_file(label_file, class_for_wheelchair)
+    # Copy or move files
+    for dataset in whole_datasets:
+        for subset in subsets:
+            for subdirectory in subdirectories:
+                src_dir = dataset_dir / dataset / subset / subdirectory
+                dest_dir = dataset_dir / subset / subdirectory
 
-                dest_dir = dataset_dir / dataset_directory / 'labels' / label_file.name
-                copy_or_move_files(label_file, dest_dir, copy_instead_move)
+                source_images = Path(src_dir)
+                for image_file in source_images.iterdir():
+                    shutil.move(image_file, dest_dir)
 
-        if not copy_instead_move:
-            shutil.rmtree(sub_dir.parent)
-            print(f"Removing directory {sub_dir.parent} with all its contents.")
+    # Delete the temporary directories
+    for dataset in whole_datasets:
+        shutil.rmtree(dataset_dir / dataset)
 
     print('Successfully merged the datasets!')
 
