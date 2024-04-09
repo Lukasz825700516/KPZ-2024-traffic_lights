@@ -32,7 +32,6 @@ jobs:
 
       - name: Get Changes between Tags
         id: changes
-        if: steps.version.outputs.changed == 'true'
         uses: simbo/changes-between-tags-action@v1
 
       # Runs a single command using the runners shell
