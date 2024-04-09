@@ -8,7 +8,41 @@ class_for_wheelchair = 3
 class_for_blind = 4
 class_for_suitcase = 5
 
-# TODO: Download datasets via CLI, https://docs.roboflow.com/roboflow-cli/download-dataset
+def authenticate_kaggle():
+    authentication_data = '{"username":"helmutedgarson","key":"3fb6889f0a2de29194b0f271716c8d56"}'
+
+    kaggle_json_path = os.path.expanduser('~/.kaggle/kaggle.json')
+
+    os.makedirs(os.path.dirname(kaggle_json_path), exist_ok=True)
+
+    with open(kaggle_json_path, 'w') as file:
+        file.write(authentication_data)
+
+
+def download_kaggle_datasets():
+
+    import auth_kaggle
+
+    auth_kaggle.authenticate_kaggle()
+
+    import kaggle
+    from kaggle.api.kaggle_api_extended import KaggleApi
+
+
+    dataset_directory = Path('./Datasets')
+
+    api = KaggleApi()
+    api.authenticate()
+    
+    datasets = {
+        "Blind" : "jangbyeonghui/visually-impairedwhitecane",
+        "Suitcase" : "dataclusterlabs/suitcaseluggage-dataset",
+    }
+
+
+    for dataset_name, dataset_url in datasets.items():
+        api.dataset_download_files(dataset_url, path=dataset_directory/dataset_name, unzip=True)
+
 
 def download_roboflow_datasets():
     key = '96bccdb6-5fd7-4947-9335-2feaef52dbcd'
@@ -17,9 +51,7 @@ def download_roboflow_datasets():
     datasets = {
         'Stroller' : 'thales-a5kye/stroller_final/dataset/3',
         'Child_Elderly_Adult' : 'gist-awllb/dl-bhh3b/dataset/4',
-        'Wheelchair' : 'obj-detection-gmggm/objectdetect-iga7u',
-        #'Blind' : '', # TODO: add a missing dataset
-        #'Suitcase' : ''  # TODO: add a missing dataset
+        'Wheelchair' : 'obj-detection-gmggm/objectdetect-iga7u'
     }
 
     commands = [
@@ -66,6 +98,7 @@ def modify_label_file(label_file, class_code):
 def main():
     validate_arguments()
 
+    download_kaggle_datasets()
     download_roboflow_datasets()
 
     dataset_dir = Path(sys.argv[1]).resolve()
