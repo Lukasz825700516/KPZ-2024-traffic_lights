@@ -23,7 +23,7 @@ from the `urtlanalisis` python package, and the results of training were saved i
 the `last_run` directory.
 
 
-![confiusion graph](./last_run/confusion/matrix_notmalized.png "Confusion graph of trained model")
+![confiusion graph](./last_run/confusion_matrix_normalized.png "Confusion graph of trained model")
 
 Above confusion matrix presents the results of model training.
 
