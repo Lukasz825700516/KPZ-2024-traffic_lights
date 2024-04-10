@@ -8,12 +8,14 @@ import typing
 import dotenv
 
 import PIL
+import numpy
 import torch
 from torch import nn
 import torchvision
 from torchvision.transforms import v2 as transforms_v2
 from torchvision import datasets
 import ultralytics
+import cv2
 
 import roboflow
 
@@ -29,6 +31,24 @@ project = rf.workspace("gist-awllb").project("dl-bhh3b")
 version = project.version(4)
 datasetChildrenElderyAdults = version.download("yolov8")
 
+def main():
+    cap = cv2.VideoCapture(0)
+    if not cap.isOpened():
+        print("Cannot open camera")
+        exit()
+
+    while True:
+        ret, frame = cap.read()
+        if not ret:
+            print("Failed to revieve frame")
+            break
+
+        frame = cv2.resize(frame, dsize=(640, 640), interpolation=cv2.INTER_CUBIC)
+        frame = numpy.asarray(frame)
+        frame = torch.from_numpy(frame)
+        # frame.to(device)
+
+        # model(frame)
 
 BATCH_SIZE=32
 
