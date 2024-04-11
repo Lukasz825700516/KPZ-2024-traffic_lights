@@ -5,10 +5,10 @@ import os
 from dotenv import load_dotenv
 
 def load_roboflow_api_key():
-    load_dotenv() # load environment variables from .env file to os.environ
+    load_dotenv()
 
     key = os.environ.get('ROBOFLOW_API_KEY')
-    if key == None:
+    if not key:
         print('Set ROBOFLOW_API_KEY in .env file to download datasets')
         sys.exit(1)
 
