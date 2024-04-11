@@ -1,4 +1,8 @@
 artifacts/*
 .vscode
 .venv
+.env
 __pycache__
+
+Datasets/
+!Datasets/data.yaml
