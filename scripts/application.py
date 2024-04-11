@@ -27,7 +27,7 @@ def main():
             print("Failed to revieve frame")
             break
 
-        frame = cv2.resize(frame, dsize=(640, 640), interpolation=cv2.INTER_CUBIC)
+        frame = cv2.resize(frame, dsize=(640, 640), interpolation=cv2.INTER_LINEAR)
         frame = numpy.asarray(frame)
         frame = torch.from_numpy(frame)
         frame.to(device)
