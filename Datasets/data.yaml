@@ -5,7 +5,8 @@ names:
 - Wheelchair 
 - Blind
 - Suitcase
-nc: 6
+- Stroller
+nc: 7
 path: ../KPZ-2024-traffic_lights/Datasets
 test: test/images
 train: train/images
