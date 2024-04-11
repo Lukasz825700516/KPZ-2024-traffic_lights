@@ -29,8 +29,8 @@ image, which should give us rough estimate of capability for real time video pro
 
 | model                        | time (seconds) |
 | --------------------------- | ---------------- |
-| FasterRCNN_ResNet50_FPN_V2   | 5 |
-| Hybridnets                   | 0.9 sekund |
+| FasterRCNN_ResNet50_FPN_V2   | 5.0  |
+| Hybridnets                   | 0.9  |
 | YOLOP                        | 0.13 |
 | SSD                          | 0.20 |
 
