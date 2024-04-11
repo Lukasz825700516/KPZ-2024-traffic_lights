@@ -1,7 +1,8 @@
 names:
-- Eldery
+the current adult class should be child, eldery should be adult, and adult should be eldery
 - Adult
 - Child
+- Elderly
 - Wheelchair 
 - Blind
 - Suitcase
