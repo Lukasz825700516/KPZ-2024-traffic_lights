@@ -2,7 +2,7 @@ import sys
 
 import torch
 import ultralytics
-
+import time
 
 def main():
     count_frames = 0
@@ -27,8 +27,8 @@ def main():
         6 : 0
     }
     
-    if not len(sys.argv) == 3:
-        print("missing arguments: <weights> <source>")
+    if not len(sys.argv) >= 3:
+        print("missing arguments: <weights> <source> <delay>=0.0")
         exit()
 
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
@@ -39,7 +39,12 @@ def main():
         source_in = 0
     else:
         source_in = sys.argv[2]
-        
+    
+    delay = 0.0
+    
+    if len(sys.argv) == 4:
+        delay = float(sys.argv[3])
+    
     while True:
         results = model(source=source_in, show=True)
         
@@ -60,6 +65,8 @@ def main():
                     print("GREEN LIGHT FOR LABEL: " + str(i))
                 label_count_dict[i] = 0
                 label_avg_dict[i] = 0.0
+                
+        time.sleep(delay)
 
 if __name__ == "__main__":
     main()

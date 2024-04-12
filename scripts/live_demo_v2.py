@@ -6,8 +6,8 @@ import ultralytics
 import time
 
 def main():
-    if not len(sys.argv) == 3:
-        print("missing arguments: <weights> <source>")
+    if not len(sys.argv) >= 3:
+        print("missing arguments: <weights> <source> <delay>=0.0")
         exit()
 
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
@@ -18,6 +18,11 @@ def main():
         cap = cv2.VideoCapture(0) # 0 - camera / PATH to source
     else:
         cap = cv2.VideoCapture(sys.argv[2])
+        
+    delay = 0.0
+    
+    if len(sys.argv) == 4:
+        delay = float(sys.argv[3])
     
     
     prev_frame_time = 0
@@ -81,7 +86,7 @@ def main():
         if cv2.waitKey(10) & 0xFF == ord('q'):
             break
         
-        # time.sleep(0.1)
+        time.sleep(delay)
         
 if __name__ == "__main__":
     main()
