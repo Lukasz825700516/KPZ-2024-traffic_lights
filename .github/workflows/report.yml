@@ -26,13 +26,6 @@ jobs:
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v4
-        with:
-          # for git log history
-          fetch-depth: 0
-
-      - name: Get Changes between Tags
-        id: changes
-        uses: simbo/changes-between-tags-action@v1
 
       # Runs a single command using the runners shell
       - name: Compile report
@@ -49,6 +42,25 @@ jobs:
           name: artifacts
           path: |
             artifacts/*.pdf
+
+
+
+  release:
+    runs-on: ubuntu-latest
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v4
+        with:
+          # for git log history
+          fetch-depth: 0
+
+      - name: Get Changes between Tags
+        id: changes
+        uses: simbo/changes-between-tags-action@v1
+
+      - uses: actions/download-artifact@master
+        with:
+          name: artifacts
+          path: artifacts/*.pdf
 
       - name: Create release
         id: create_release
@@ -73,5 +85,3 @@ jobs:
           asset_path: artifacts/report.pdf
           asset_name: report.pdf
           asset_content_type: application/pdf
-
-
