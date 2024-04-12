@@ -7,7 +7,7 @@ import time
 
 def main():
     if not len(sys.argv) >= 3:
-        print("missing arguments: <weights> <source> <delay>=0.0")
+        print("missing arguments: <weights> <source> <delay>=0.0s")
         exit()
 
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
