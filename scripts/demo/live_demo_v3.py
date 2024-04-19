@@ -24,18 +24,21 @@ def validate_arguments():
 
     return input_source, delay
     
-def print_light(count_down):
+def print_light(count_down, red_light_duration):
     os.system("clear")
     if count_down > 0:
         print("\033[32m\u25CF\033[0m", f"Timer: {count_down}")
+    elif count_down < 0:
+        print("\033[31m\u25CF\033[0m", f"Timer: {red_light_duration + count_down}")
     else:
-        print("\033[31m\u25CF\033[0m", "Time is up!")
-
+        print("\033[33m\u25CF\033[0m") 
 
 
 def main():
     minimal_detection_confidence = 0.5
     green_light_duration = 15 # in seconds
+    red_light_duration = 15
+
     time_increment = { # in seconds
         "Elderly" : 9,
         "Child" : 9,
@@ -48,7 +51,7 @@ def main():
     input_source, frame_duration = validate_arguments()
 
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-    model = ultralytics.YOLO(sys.argv[1])
+    model = ultralytics.YOLO(sys.argv[1],)
     model = model.to(device)  
 
     classes = list( time_increment.keys() )
@@ -64,7 +67,7 @@ def main():
         if not frame_returned:  
             break
 
-        predictions = model(frame, verbose=False)
+        predictions = model(frame, verbose=False, conf=0.4)
         annotated_frame = predictions[0].plot()
         cv2.imshow("Smart Pedestrian Crossing", annotated_frame)
 
@@ -92,7 +95,10 @@ def main():
             break
 
         count_down -= frame_duration
-        print_light( round(count_down, 0))
+        if count_down < -red_light_duration:
+            count_down = green_light_duration
+
+        print_light( round(count_down, 0), red_light_duration)
 
 
     cap.release()
