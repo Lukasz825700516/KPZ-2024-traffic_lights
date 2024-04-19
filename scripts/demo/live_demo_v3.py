@@ -20,13 +20,21 @@ def create_parser() -> argparse.ArgumentParser:
 
     return parser
 
-def main():
+def get_pressed_key() -> str:
+    return chr ( cv2.waitKey(1) & 0xFF )
+        
+
+def main() -> None:
+    minimal_detection_confidence = 0.5
+    
     parser = create_parser()
     args = parser.parse_args()
 
-    minimal_detection_confidence = 0.5
-
-    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+    device = torch.device(
+        "cuda:0" if torch.cuda.is_available()
+        else "cpu"
+    )
+    
     model = ultralytics.YOLO(sys.argv[1],)
     model = model.to(device)  
 
@@ -52,7 +60,7 @@ def main():
         if elapsed_time < args.frame_duration:
             time.sleep(args.frame_duration - elapsed_time)
 
-        if cv2.waitKey(1) & 0xFF == ord('q'):
+        if get_pressed_key() == 'q':
             break
 
         detected_classes = [ int(detection.cls) for detection in predictions[0].boxes ]
