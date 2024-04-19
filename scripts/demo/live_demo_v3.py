@@ -25,7 +25,6 @@ def validate_arguments():
     return input_source, delay
     
 def print_light(count_down):
-    
     os.system("clear")
     if count_down > 0:
         print("\033[32m\u25CF\033[0m", f"Timer: {count_down}")
@@ -46,24 +45,15 @@ def main():
         "Suitcase" : 12,
     }
 
-
     input_source, frame_duration = validate_arguments()
 
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
     model = ultralytics.YOLO(sys.argv[1])
     model = model.to(device)  
 
+    classes = list( time_increment.keys() )
     count_down = green_light_duration
-    classes = ['Elderly', 'Child', 'Adult', 'Wheelchair', 'Blind', 'Suitcase', 'Stroller']
-    already_detected = {
-        "Elderly" : False,
-        "Child" : False,
-        "Adult" : False,
-        "Wheelchair" : False,
-        "Blind" : False,
-        "Suitcase" : False,
-        "Stroller" : False,
-    }
+    already_detected = {class_name: False for class_name in classes}
 
     cap = cv2.VideoCapture(input_source)
 
@@ -87,8 +77,8 @@ def main():
                     already_detected[ class_name ] = True
                     count_down += time_increment[ class_name ]
 
-                # prediction_confidence = round(prediction[0].cpu().boxes.conf.item(), 3)
-                # print(f"Class {class_name}: {prediction_confidence}")
+                    prediction_confidence = round(prediction[0].cpu().boxes.conf.item(), 3)
+                    print(f"Detected {class_name.lower()} with confidence {prediction_confidence}")
 
 
 
