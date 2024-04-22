@@ -1,49 +1,12 @@
 import sys
 import shutil
 from pathlib import Path
-import os
-from dotenv import load_dotenv
-
-def load_roboflow_api_key():
-    load_dotenv()
-
-    key = os.environ.get('ROBOFLOW_API_KEY')
-    if not key:
-        print('Set ROBOFLOW_API_KEY in .env file to download datasets')
-        sys.exit(1)
-
-    return key
-
-def download_roboflow_datasets():
-    download_location = './Datasets'
-    format = 'yolov8'
-    datasets = {
-        'Stroller' : 'thales-a5kye/stroller_final/dataset/3',
-        'Child_Elderly_Adult' : 'kpz2/child-adult-elderly/2',
-        'Wheelchair' : 'kpz2/wheelchair-grmuz/1',
-        'Blind' : 'kpz1/blind-vecl4/1',
-        'Suitcase' : 'kpz1/suitcase-8nzqz/1'
-    }
-    
-    key = load_roboflow_api_key()
-
-    commands = [
-        f'echo "Use this secret key: {key}"',
-        'roboflow login',
-    ]
-
-    for dataset_name, dataset_url in datasets.items():
-        commands.append(f'roboflow download -f {format} -l {download_location}/{dataset_name} {dataset_url}')
-
-    os.system(' && '.join(commands))
-
 
 def validate_arguments():
-    program_usage = 'Usage: python create_dataset.py <dataset_directory>'
+    program_usage = 'Usage: python merge_datasets.py <dataset_directory>'
     if len(sys.argv) != 2:
         print(program_usage)
         sys.exit(1)         
-
 
 def modify_label_file(label_file, class_code):
     if class_code == None:
@@ -63,8 +26,6 @@ def modify_label_file(label_file, class_code):
 
 def main():
     validate_arguments()
-
-    download_roboflow_datasets()
 
     dataset_dir = Path(sys.argv[1]).resolve()
 
@@ -102,6 +63,9 @@ def main():
             class_id = None
 
         for subset in subsets:
+            if (subset == 'test' or subset == 'valid') and dataset == 'Stroller':
+                continue
+            
             subdirectory = 'labels'
             path = dataset_dir / dataset / subset / subdirectory
             for image_file in path.iterdir():
@@ -111,13 +75,16 @@ def main():
     # Copy or move files
     for dataset in whole_datasets:
         for subset in subsets:
+            if (subset == 'test' or subset == 'valid') and dataset == 'Stroller':
+                continue
             for subdirectory in subdirectories:
                 src_dir = dataset_dir / dataset / subset / subdirectory
                 dest_dir = dataset_dir / subset / subdirectory
 
                 source_images = Path(src_dir)
                 for image_file in source_images.iterdir():
-                    shutil.move(image_file, dest_dir)
+                    if not Path(dest_dir/image_file).exists():
+                        shutil.move(image_file, dest_dir)
 
     # Delete the temporary directories
     for dataset in whole_datasets:
