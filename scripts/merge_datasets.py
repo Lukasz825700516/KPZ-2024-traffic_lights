@@ -6,8 +6,7 @@ dataset_labels = {
         'Wheelchair' : 3,
         'Blind' : 4,
         'Suitcase' : 5,
-        'Stroller' : 6,
-        'Bicycle' : 7
+        'Stroller' : 6
     }
 
 def validate_arguments():
@@ -35,8 +34,6 @@ def modify_label_file(label_file, class_code, dataset):
                 content[0] = str(dataset_labels['Suitcase'])
             elif content[0] == '3':
                 content[0] = str(dataset_labels['Stroller'])
-            elif content[0] == '4':
-                content[0] = str(dataset_labels['Bicycle'])
         else:    
             content[0] = str(class_code)
         modified_label_lines.append(' '.join(content) + '\n')
@@ -88,10 +85,8 @@ def main():
                 src_dir = dataset_dir / dataset / subset / subdirectory
                 dest_dir = dataset_dir / subset / subdirectory
 
-                source_images = Path(src_dir)
-                for image_file in source_images.iterdir():
-                    if not Path(dest_dir/image_file).exists():
-                        shutil.move(image_file, dest_dir)
+                for image_file in src_dir.iterdir():
+                    shutil.copy(image_file, dest_dir)
 
     # Delete the temporary directories
     for dataset in whole_datasets:
