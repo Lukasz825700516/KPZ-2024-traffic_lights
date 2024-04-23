@@ -63,7 +63,6 @@ def main():
             class_id = None
 
         for subset in subsets:
-            
             subdirectory = 'labels'
             path = dataset_dir / dataset / subset / subdirectory
             for image_file in path.iterdir():
@@ -73,7 +72,6 @@ def main():
     # Copy or move files
     for dataset in whole_datasets:
         for subset in subsets:
-            
             for subdirectory in subdirectories:
                 src_dir = dataset_dir / dataset / subset / subdirectory
                 dest_dir = dataset_dir / subset / subdirectory
