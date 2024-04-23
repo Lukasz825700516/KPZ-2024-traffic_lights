@@ -1,9 +1,11 @@
 # Getting datasets
+
 While in main directory: `scripts/download_datasets.sh`,
 then `python scripts/merge_datasets.py Datasets`.
 
-# Datasets: 
-Child_Elderly_Adult: 
+# Datasets:
+
+Child_Elderly_Adult:
 https://universe.roboflow.com/gist-awllb/dl-bhh3b
 
 Blind:
@@ -13,12 +15,9 @@ Suitcase:
 https://www.kaggle.com/datasets/dataclusterlabs/suitcaseluggage-dataset
 
 Wheelchair:
-https://universe.roboflow.com/obj-detection-gmggm/objectdetect-iga7u  
+https://universe.roboflow.com/obj-detection-gmggm/objectdetect-iga7u
 
 #
-Labels for datasets were created in YOLOv7 .txt format  
-(more here: https://roboflow.com/formats/yolov7-pytorch-txt)
-
 
 Datasets are divided to train/vaild/test sets (70%/20%/10%)
 
