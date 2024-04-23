@@ -63,8 +63,6 @@ def main():
             class_id = None
 
         for subset in subsets:
-            if (subset == 'test' or subset == 'valid') and dataset == 'Stroller':
-                continue
             
             subdirectory = 'labels'
             path = dataset_dir / dataset / subset / subdirectory
@@ -75,16 +73,13 @@ def main():
     # Copy or move files
     for dataset in whole_datasets:
         for subset in subsets:
-            if (subset == 'test' or subset == 'valid') and dataset == 'Stroller':
-                continue
+            
             for subdirectory in subdirectories:
                 src_dir = dataset_dir / dataset / subset / subdirectory
                 dest_dir = dataset_dir / subset / subdirectory
 
-                source_images = Path(src_dir)
-                for image_file in source_images.iterdir():
-                    if not Path(dest_dir/image_file).exists():
-                        shutil.move(image_file, dest_dir)
+                for image_file in src_dir.iterdir():
+                    shutil.copy(image_file, dest_dir)
 
     # Delete the temporary directories
     for dataset in whole_datasets:
