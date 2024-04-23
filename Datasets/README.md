@@ -1,3 +1,7 @@
+# Getting datasets
+While in main directory: `scripts/download_datasets.sh`,
+then `python scripts/merge_datasets.py Datasets`.
+
 # Datasets: 
 Child_Elderly_Adult: 
 https://universe.roboflow.com/gist-awllb/dl-bhh3b

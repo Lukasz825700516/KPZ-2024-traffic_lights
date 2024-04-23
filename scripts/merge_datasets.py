@@ -11,7 +11,6 @@ dataset_labels = {
     }
 
 
-
 def validate_arguments():
     program_usage = 'Usage: python merge_datasets.py <dataset_directory>'
     if len(sys.argv) != 2:
@@ -77,6 +76,9 @@ def main():
             class_id = None
 
         for subset in subsets:
+            if (subset == 'test' or subset == 'valid') and dataset == 'Stroller':
+                continue
+            
             subdirectory = 'labels'
             path = dataset_dir / dataset / subset / subdirectory
             for image_file in path.iterdir():
@@ -86,13 +88,15 @@ def main():
     # Copy or move files
     for dataset in whole_datasets:
         for subset in subsets:
+            if (subset == 'test' or subset == 'valid') and dataset == 'Stroller':
+                continue
             for subdirectory in subdirectories:
                 src_dir = dataset_dir / dataset / subset / subdirectory
                 dest_dir = dataset_dir / subset / subdirectory
 
                 source_images = Path(src_dir)
                 for image_file in source_images.iterdir():
-                    if Path(dest_dir/image_file).exists():
+                    if not Path(dest_dir/image_file).exists():
                         shutil.move(image_file, dest_dir)
 
     # Delete the temporary directories
