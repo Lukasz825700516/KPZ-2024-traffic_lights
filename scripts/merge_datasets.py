@@ -2,13 +2,23 @@ import sys
 import shutil
 from pathlib import Path
 
+dataset_labels = {
+        'Wheelchair' : 3,
+        'Blind' : 4,
+        'Suitcase' : 5,
+        'Stroller' : 6,
+        'Bicycle' : 7
+    }
+
+
+
 def validate_arguments():
     program_usage = 'Usage: python merge_datasets.py <dataset_directory>'
     if len(sys.argv) != 2:
         print(program_usage)
         sys.exit(1)         
 
-def modify_label_file(label_file, class_code):
+def modify_label_file(label_file, class_code, dataset):
     if class_code == None:
         return
 
@@ -18,7 +28,19 @@ def modify_label_file(label_file, class_code):
     modified_label_lines = []
     for line in label_lines:
         content = line.split()
-        content[0] = str(class_code)
+        if dataset == 'Stroller':
+            if content[0] == '0': # Human
+                continue
+            elif content[0] == '1':
+                content[0] = str(dataset_labels['Wheelchair'])
+            elif content[0] == '2':
+                content[0] = str(dataset_labels['Suitcase'])
+            elif content[0] == '3':
+                content[0] = str(dataset_labels['Stroller'])
+            elif content[0] == '4':
+                content[0] = str(dataset_labels['Bicycle'])
+        else:    
+            content[0] = str(class_code)
         modified_label_lines.append(' '.join(content) + '\n')
 
     with open(label_file, 'w') as f:
@@ -28,14 +50,6 @@ def main():
     validate_arguments()
 
     dataset_dir = Path(sys.argv[1]).resolve()
-
-    dataset_labels = {
-        'Wheelchair' : 3,
-        'Blind' : 4,
-        'Suitcase' : 5,
-        'Stroller' : 6
-    }
-
 
     whole_datasets = [
         'Blind',
@@ -66,7 +80,7 @@ def main():
             subdirectory = 'labels'
             path = dataset_dir / dataset / subset / subdirectory
             for image_file in path.iterdir():
-                modify_label_file(image_file, class_id)
+                modify_label_file(image_file, class_id, dataset)
 
 
     # Copy or move files
@@ -78,6 +92,7 @@ def main():
 
                 for image_file in src_dir.iterdir():
                     shutil.copy(image_file, dest_dir)
+
 
     # Delete the temporary directories
     for dataset in whole_datasets:
