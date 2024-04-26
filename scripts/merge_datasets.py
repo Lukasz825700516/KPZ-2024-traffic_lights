@@ -90,10 +90,9 @@ def main():
                 src_dir = dataset_dir / dataset / subset / subdirectory
                 dest_dir = dataset_dir / subset / subdirectory
 
-                source_images = Path(src_dir)
-                for image_file in source_images.iterdir():
-                    if Path(dest_dir/image_file).exists():
-                        shutil.move(image_file, dest_dir)
+                for image_file in src_dir.iterdir():
+                    shutil.copy(image_file, dest_dir)
+
 
     # Delete the temporary directories
     for dataset in whole_datasets:
