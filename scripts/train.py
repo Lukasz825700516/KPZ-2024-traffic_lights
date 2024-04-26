@@ -13,7 +13,8 @@ def parse_arguments():
     parser.add_argument('-m', '--memory', help='Defines the maximum allowed memory allocation on GPU. 0 means dynamic. If an error occurs such as "torch.cuda.OutOfMemoryError: CUDA out of memory.", decrease this value.', default=0, type=int)
     parser.add_argument('-g', '--goal', choices=['transfer-learning', 'fine-tuning', 'from-scratch'], default="transfer-learning", help='Choose whether to train all layers (learning-from-scratch), a few last layers (transfer-learning) or the very last layer (fine-tuning).')    
     parser.add_argument('-l', '--location', choices=["remote", "local"], help="Specify whether to train remotely or locally.", default="local")
-    
+    parser.add_argument('-t', '--task', choices=['classify', 'detect'], help="Determine whether to train the model for classification or object detection.")
+        
     parser.add_argument('-d', '--data', type=pathlib.Path, required=True, help="The path to the data.yaml file, which defines a dataset structure.")
     parser.add_argument('-v', '--verbose', type=bool, default=False, help="Specifies if training should print a lot of details (True) or minimum (False).")
     
@@ -24,7 +25,8 @@ def remove_non_yolo_arguments(all_args):
     project_specific_args = [
         'location',
         'goal',
-        'memory'
+        'memory',
+        'task'
     ]
 
     all_args = vars(all_args)
@@ -32,7 +34,7 @@ def remove_non_yolo_arguments(all_args):
         
     return yolo_args
 
-def train_locally(yolo_args: Dict[str, str], goal: str, memory: str):
+def train_locally(yolo_args: Dict[str, str], goal: str, memory: str, task: str):
     print("Training locally")
 
     # TODO: verify if yolo command is available in PATH
@@ -71,12 +73,12 @@ def train_locally(yolo_args: Dict[str, str], goal: str, memory: str):
         value = str(value)
         args += f'{key}={value} '
 
-    print(f'yolo detect train {args}')
-    os.system(f'yolo {args}')
-    # pass yolo args to command
-    # save with an appropriate framework
+    print(f'yolo {task} train {args}')
+    os.system(f'yolo {task} train {args}')
+    
+    # TODO: save with an appropriate framework
 
-def train_remotely(yolo_args: Dict[str, str], goal: str, memory: str):
+def train_remotely(yolo_args: Dict[str, str], goal: str, memory: str, task: str):
     print("Training remotely")
     credentials = dotenv.dotenv_values(".env")
     # upload dataset if not exists
@@ -90,10 +92,10 @@ def main():
 
     match args.location:
         case "local": 
-            train_locally(yolo_args, args.goal, args.memory)
+            train_locally(yolo_args, args.goal, args.memory, args.task)
 
         case "remote":
-            train_remotely(yolo_args, args.goal, args.memory)
+            train_remotely(yolo_args, args.goal, args.memory, args.task)
     
 
 if __name__ == '__main__':
