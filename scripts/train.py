@@ -4,8 +4,9 @@ from typing import Dict
 import dotenv
 import pathlib
 import subprocess
+from ultralytics import YOLO
 import mlflow
-from ultralytics import settings
+
 
 def print_warning(text: str) -> None:
     print("\033[93m{}\033[0m".format(text))
@@ -14,13 +15,12 @@ def print_warning(text: str) -> None:
 def parse_arguments():
     parser = argparse.ArgumentParser(
         prog='train',
-        description='The script trains the YOLO model placing artifacts as weights and results in the proper locations.'
+        description='The script trains the YOLO model and send artifacts to MLFlow.'
     )
 
     parser.add_argument('-e', '--epochs', default=0, type=int, help="Set the number of training epochs. It overrides the default behaviour (value of `0`), which is training ended when no improvement occurs within 10 epochs.", )
     parser.add_argument('-m', '--memory', help='Defines the maximum allowed memory allocation on GPU. 0 means dynamic. If an error occurs such as "torch.cuda.OutOfMemoryError: CUDA out of memory.", decrease this value.', default=0, type=int)
     parser.add_argument('-g', '--goal', choices=['transfer-learning', 'fine-tuning', 'from-scratch'], default="transfer-learning", help='Choose whether to train all layers (learning-from-scratch), a few last layers (transfer-learning) or the very last layer (fine-tuning).')    
-    parser.add_argument('-l', '--location', choices=["remote", "local"], help="Specify whether to train remotely or locally.", default="local")
     parser.add_argument('-t', '--task', choices=['classify', 'detect'], help="Determine whether to train the model for classification or object detection.")
         
     parser.add_argument('-d', '--data', type=pathlib.Path, required=True, help="The path to the data.yaml file, which defines a dataset structure.")
@@ -42,28 +42,55 @@ def remove_non_yolo_arguments(all_args):
         
     return yolo_args
 
+
+def save_results(hyperparameters: Dict[str, str], model, metrics, results, task: str, goal: str) -> None:
+    host = '127.0.0.1'
+    port = '8080'
+    mlflow.set_tracking_uri(uri='http://{host}:{port}')
+
+    mlflow.set_experiment(f'yolo-{task}')
+    with mlflow.start_run():
+
+        mlflow.set_tag('Goal', goal)
+        signature = infer_signature(hyperparameters['data'], results)
+
+        for key, value in metrics.results_dict.items():
+                mlflow.log_metric(key, value)
+
+        mlflow.log_params(hyperparameters)
+        mlflow.log_param("ap_class_index", metrics.ap_class_index.tolist())
+        mlflow.log_param("curves", metrics.curves)
+        mlflow.log_param("names", metrics.names)
+        mlflow.log_param("plot", metrics.plot)
+        mlflow.log_param("speed", metrics.speed)
+        mlflow.log_param("task", metrics.task)
+
+        model_info = mlflow.pytorch.log_model(
+            pytorch_model=model,
+            artifact_path='last_run/',
+            signature=signature,
+            registered_model_name='YOLO8n',
+        )
+        
+
 def train_locally(yolo_args: Dict[str, str], goal: str, memory: str, task: str):
     print("Training locally")
-    settings.update({'mlflow': True})
         
-    exit_code = subprocess.run(['which', 'yolo'], env=os.environ).returncode
-    if exit_code != 0:
-        print_warning('It looks like your you do NOT have `yolo` in your path. Install it and/or enter the proper virtual environment.')
-    
     preset_args = {
         'patience': 10,
         'device': 0, # enforce GPU instead of CPU
         'epochs': 9999 if yolo_args["epochs"] == 0 else yolo_args["epochs"], # train until no improvment is found
-        'plots': True,
-        'project': f'{task}-with-yolo-{goal}'
+        'plots': True
     }
+
+    del yolo_args['epochs'] # already used in preset_args
     
     match goal:
         case 'transfer-learning':
-            preset_args['freeze'] = "19"
+            preset_args['freeze'] = 19
 
         case 'fine-tuning':
-            preset_args['freeze'] = "22"
+            preset_args['freeze'] = 22
 
         case 'from-scratch':
             pass
@@ -77,37 +104,20 @@ def train_locally(yolo_args: Dict[str, str], goal: str, memory: str, task: str):
     else:
         images_per_gb = 16
         preset_args["batch"] = memory * images_per_gb
-        
+
     yolo_args = {**yolo_args, **preset_args}
     
-    args = ' '
-    for key, value in yolo_args.items():
-        value = str(value)
-        args += f'{key}={value} '
+    model = YOLO('yolov8n.pt')  
+    results = model.train(**yolo_args)
+    metrics = model.val(data=yolo_args['data'])
 
-    training_command = f'yolo {task} train {args}'
-    print("Command:", training_command)
-    os.system(training_command)
+    save_results(yolo_args, model, metrics, results, task, goal)
 
-def train_remotely(yolo_args: Dict[str, str], goal: str, memory: str, task: str):
-    print("Training remotely")
-    credentials = dotenv.dotenv_values(".env")
-    # upload dataset if not exists
-    # send training command
-    # download artifacts
-    # save artifacts to the proper server/locally in repo
-
+    
 def main():
     args = parse_arguments()
     yolo_args = remove_non_yolo_arguments(args) 
-
-    match args.location:
-        case "local": 
-            train_locally(yolo_args, args.goal, args.memory, args.task)
-
-        case "remote":
-            train_remotely(yolo_args, args.goal, args.memory, args.task)
-    
+    train_locally(yolo_args, args.goal, args.memory, args.task)
 
 if __name__ == '__main__':
     main()
