@@ -3,13 +3,21 @@ import argparse
 from typing import Dict
 import dotenv
 import pathlib
+import subprocess
+import mlflow
+from ultralytics import settings
+
+def print_warning(text: str) -> None:
+    print("\033[93m{}\033[0m".format(text))
+    
 
 def parse_arguments():
     parser = argparse.ArgumentParser(
         prog='train',
         description='The script trains the YOLO model placing artifacts as weights and results in the proper locations.'
     )
-    
+
+    parser.add_argument('-e', '--epochs', default=0, type=int, help="Set the number of training epochs. It overrides the default behaviour (value of `0`), which is training ended when no improvement occurs within 10 epochs.", )
     parser.add_argument('-m', '--memory', help='Defines the maximum allowed memory allocation on GPU. 0 means dynamic. If an error occurs such as "torch.cuda.OutOfMemoryError: CUDA out of memory.", decrease this value.', default=0, type=int)
     parser.add_argument('-g', '--goal', choices=['transfer-learning', 'fine-tuning', 'from-scratch'], default="transfer-learning", help='Choose whether to train all layers (learning-from-scratch), a few last layers (transfer-learning) or the very last layer (fine-tuning).')    
     parser.add_argument('-l', '--location', choices=["remote", "local"], help="Specify whether to train remotely or locally.", default="local")
@@ -36,14 +44,18 @@ def remove_non_yolo_arguments(all_args):
 
 def train_locally(yolo_args: Dict[str, str], goal: str, memory: str, task: str):
     print("Training locally")
-
-    # TODO: verify if yolo command is available in PATH
-
-
+    settings.update({'mlflow': True})
+        
+    exit_code = subprocess.run(['which', 'yolo'], env=os.environ).returncode
+    if exit_code != 0:
+        print_warning('It looks like your you do NOT have `yolo` in your path. Install it and/or enter the proper virtual environment.')
+    
     preset_args = {
         'patience': 10,
         'device': 0, # enforce GPU instead of CPU
-        'epochs': 9999 # train until 
+        'epochs': 9999 if yolo_args["epochs"] == 0 else yolo_args["epochs"], # train until no improvment is found
+        'plots': True,
+        'project': f'{task}-with-yolo-{goal}'
     }
     
     match goal:
@@ -73,10 +85,9 @@ def train_locally(yolo_args: Dict[str, str], goal: str, memory: str, task: str):
         value = str(value)
         args += f'{key}={value} '
 
-    print(f'yolo {task} train {args}')
-    os.system(f'yolo {task} train {args}')
-    
-    # TODO: save with an appropriate framework
+    training_command = f'yolo {task} train {args}'
+    print("Command:", training_command)
+    os.system(training_command)
 
 def train_remotely(yolo_args: Dict[str, str], goal: str, memory: str, task: str):
     print("Training remotely")
