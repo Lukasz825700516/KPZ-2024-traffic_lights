@@ -4,14 +4,14 @@ import numpy as np
 import yaml
 from PIL import Image
 
-PATH_TO_CHILD_DATASET = '../Datasets/Child_Elderly_Adult/DL.v2i.yolov7pytorch'
+PATH_TO_DATASET = '../Datasets'
 
 # Import .yaml file
-with open(PATH_TO_CHILD_DATASET + '/data.yaml', 'r') as file:
+with open(PATH_TO_DATASET + '/data.yaml', 'r') as file:
     data = yaml.safe_load(file)
 
 # Change dir
-os.chdir(PATH_TO_CHILD_DATASET)
+os.chdir(PATH_TO_DATASET)
 os.chdir(data['train'])
 path_train = os.getcwd()
 
