@@ -1,8 +1,8 @@
+import time
+import argparse
 import torch
 import cv2
 import ultralytics
-import time
-import argparse
 from TrafficLights import TrafficLights
 
 def create_parser() -> argparse.ArgumentParser:
@@ -23,7 +23,7 @@ def get_pressed_key() -> str:
 
 def main() -> None:
     minimal_detection_confidence = 0.5
-    
+
     parser = create_parser()
     args = parser.parse_args()
 
@@ -32,11 +32,16 @@ def main() -> None:
         else "cpu"
     )
     model = ultralytics.YOLO(args.weights,)
-    model = model.to(device)  
+    model = model.to(device)
 
     with TrafficLights() as traffic_lights:
 
-        cap = cv2.VideoCapture(args.source)
+        if args.source.isdigit():
+            source = str(args.source)
+        else:
+            source = args.source
+
+        cap = cv2.VideoCapture(source)
         while cap.isOpened():
             start_time = time.time()
 
