@@ -11,12 +11,16 @@ dataset_path="Datasets"
 
 temporary_file=$dataset_path/tmp.zip
 
+i=1
 (cat "$DATASET_VERSION_FILE") | while IFS=";" read -r dataset_dir dataset_link
 do
-    echo "DIR: $dataset_dir"
-    echo "LINK: $dataset_link"
-    curl -L "$dataset_link" > "$temporary_file"
-    unzip -n "$temporary_file" -d "$dataset_path/$dataset_dir"
+    if [ $i -gt 1 ]; then
+        echo "DIR: $dataset_dir"
+        echo "LINK: $dataset_link"
+        curl -L "$dataset_link" > "$temporary_file"
+        unzip -n "$temporary_file" -d "$dataset_path/$dataset_dir"
+    fi
+    i=$((i+1))
 done
 
 rm "$temporary_file"

@@ -10,6 +10,7 @@ Directory `./versions` contains dataset_version .csv files: dataset_ID_INFO.csv
 `dataset_ID_INFO.csv` format:
 
 ```
+dataset_dir;dataset_link
 dataset_dir1;dataset_link1
 dataset_dir2;dataset_link2
 
@@ -20,6 +21,7 @@ dataset_dir2;dataset_link2
 Example:
 
 ```
+dataset_dir;dataset_link
 Blind;https://universe.roboflow.com/ds/Kl4NM4lIXU?key=zGmHdmdyxO
 Stroller;https://universe.roboflow.com/ds/rrhgYOwewJ?key=S80EUFU8ME
 
@@ -41,8 +43,8 @@ https://universe.roboflow.com/obj-detection-gmggm/objectdetect-iga7u
 
 #
 
-Labels for datasets were created in YOLOv7 .txt format  
-(more here: https://roboflow.com/formats/yolov7-pytorch-txt)
+Labels for datasets were created in YOLOv8 .txt format  
+(more here: https://roboflow.com/formats/yolov8-pytorch-txt)
 
 Datasets are divided to train/vaild/test sets (70%/20%/10%)
 
