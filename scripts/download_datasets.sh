@@ -19,14 +19,6 @@ do
     unzip -n "$temporary_file" -d "$dataset_path/$dataset_dir"
 done
 
-# i=1
-# for link in $dataset_links; do
-#     directory=$(echo "$dataset_dirs" | cut -d ' ' -f "$i")
-#     curl -L "$link" > "$temporary_file"
-#     unzip -n "$temporary_file" -d "$dataset_path/$directory"
-#     i=$((i + 1))
-# done
-
 rm "$temporary_file"
 rm README.dataset.txt README.roboflow.txt -f
 
