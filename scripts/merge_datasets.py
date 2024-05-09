@@ -32,7 +32,7 @@ def main():
 
     dataset_dir = Path(sys.argv[1]).resolve()
     dataset_version = read_csv(Path(sys.argv[2]).resolve(), sep=';')
-    dataset_labels = DatasetLabel(Path(sys.argv[2]).resolve())
+    dataset_labels = DatasetLabel(str(Path(sys.argv[2]).resolve()))
     
     whole_datasets = dataset_version['dataset_dir']
     subsets = ['test', 'train', 'valid']

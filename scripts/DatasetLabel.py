@@ -16,7 +16,7 @@ class DatasetLabel:
         self.dataset_version = dataset_version_path
     
     def get_valid_id_class(self, dataset_sub, current_id):
-        if self.dataset_version.find('dataset_1'):
+        if 'dataset_1' in self.dataset_version:
             if dataset_sub != 'Stroller':
                 if dataset_sub == 'Child_Elderly_Adult':
                     return current_id
@@ -31,7 +31,7 @@ class DatasetLabel:
                     return self.dataset_labels['Stroller']
                 elif current_id == '4':
                     return self.dataset_labels['Bicycle']
-        elif self.dataset_version.find('dataset_2'):
+        elif 'dataset_2' in self.dataset_version:
             if dataset_sub == 'On_the_road':
                 if current_id == '6':
                     return self.dataset_labels['Bicycle']
