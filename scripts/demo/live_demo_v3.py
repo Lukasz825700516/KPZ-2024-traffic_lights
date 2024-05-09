@@ -1,8 +1,8 @@
+import time
+import argparse
 import torch
 import cv2
 import ultralytics
-import time
-import argparse
 from TrafficLights import TrafficLights
 
 def create_parser() -> argparse.ArgumentParser:
@@ -14,7 +14,7 @@ def create_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description='Controls traffic lights using Deep Learning.')
     parser.add_argument('weights', type=str, help='File containing YOLO\'s weights and biases.')
     parser.add_argument('source', type=str, help='Source of video stream such as a camera input or a file. In case of camera, use its id (usually 0). In case of a file, use its path.')
-    parser.add_argument('frame_duration', type=float, nargs='?', default=0.04, help='A duration of a frame in seconds.')
+    parser.add_argument('frame_duration', type=float, nargs='?', default=0.04, help='A minimal duration of a frame in seconds. Notice that processing a frame and inference may take longer than this.')
 
     return parser
 
@@ -23,7 +23,7 @@ def get_pressed_key() -> str:
 
 def main() -> None:
     minimal_detection_confidence = 0.5
-    
+
     parser = create_parser()
     args = parser.parse_args()
 
@@ -32,21 +32,26 @@ def main() -> None:
         else "cpu"
     )
     model = ultralytics.YOLO(args.weights,)
-    model = model.to(device)  
+    model = model.to(device)
 
     with TrafficLights() as traffic_lights:
 
-        cap = cv2.VideoCapture(args.source)
+        if args.source.isdigit():
+            source = int(args.source)
+        else:
+            source = args.source
+
+        cap = cv2.VideoCapture(source)
         while cap.isOpened():
             start_time = time.time()
 
             frame_returned, frame = cap.read()
-            if not frame_returned:  
+            if not frame_returned:
                 break
 
             predictions = model(frame, verbose=False, conf=minimal_detection_confidence, iou=0.5)
             annotated_frame = predictions[0].plot()
-            
+
             cv2.imshow("Smart Pedestrian Crossing", annotated_frame)
 
             end_time = time.time()

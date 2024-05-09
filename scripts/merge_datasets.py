@@ -47,6 +47,7 @@ def main():
     for dataset in whole_datasets:
         print("Reasigning labels in dataset '" + str(dataset) + "' ...", end=" ")
         for subset in subsets:
+            
             subdirectory = 'labels'
             path = dataset_dir / dataset / subset / subdirectory
             for image_file in path.iterdir():
@@ -57,13 +58,13 @@ def main():
     for dataset in whole_datasets:
         print("Merging dataset '" + str(dataset) + "' ...", end=" ")
         for subset in subsets:
+            
             for subdirectory in subdirectories:
                 src_dir = dataset_dir / dataset / subset / subdirectory
                 dest_dir = dataset_dir / subset / subdirectory
 
                 for image_file in src_dir.iterdir():
                     shutil.copy(image_file, dest_dir)
-
 
     # Delete the temporary directories
     for dataset in whole_datasets:
