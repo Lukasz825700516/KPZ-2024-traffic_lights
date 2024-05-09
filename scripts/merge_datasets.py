@@ -20,9 +20,9 @@ def modify_label_file(label_file, dataset, dataset_labels: DatasetLabel):
         new_label = str(dataset_labels.get_valid_id_class(dataset, content[0]))
         if (new_label != '-1'):
             content[0] = new_label
+            modified_label_lines.append(' '.join(content) + '\n')
         else:
-            content[0] = ''
-        modified_label_lines.append(' '.join(content) + '\n')
+            continue
 
     with open(label_file, 'w') as f:
         f.writelines(modified_label_lines)
@@ -45,7 +45,7 @@ def main():
     
     # Reassign classes
     for dataset in whole_datasets:
-
+        print("Reasigning labels in dataset '" + str(dataset) + "' ...", end=" ")
         for subset in subsets:
             subdirectory = 'labels'
             path = dataset_dir / dataset / subset / subdirectory
@@ -55,6 +55,7 @@ def main():
 
     # Copy or move files
     for dataset in whole_datasets:
+        print("Merging dataset '" + str(dataset) + "' ...", end=" ")
         for subset in subsets:
             for subdirectory in subdirectories:
                 src_dir = dataset_dir / dataset / subset / subdirectory

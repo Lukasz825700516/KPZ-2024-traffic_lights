@@ -29,17 +29,22 @@ Stroller;https://universe.roboflow.com/ds/rrhgYOwewJ?key=S80EUFU8ME
 
 # Datasets:
 
-Child_Elderly_Adult:
-https://universe.roboflow.com/gist-awllb/dl-bhh3b
-
-Blind:
-https://www.kaggle.com/datasets/jangbyeonghui/visually-impairedwhitecane
-
-Suitcase:
-https://www.kaggle.com/datasets/dataclusterlabs/suitcaseluggage-dataset
-
-Wheelchair:
-https://universe.roboflow.com/obj-detection-gmggm/objectdetect-iga7u
+1. https://universe.roboflow.com/jacob0501/wheelchairs-ia21y - No divide into test/valid/train
+2. _On_the_road_ - https://universe.roboflow.com/myspace-7yu4s/on-the-roadv4 - All items with people (crutch,wheelchair,cane,stroller)
+3. _Mtpwheelchair_multi_ - https://universe.roboflow.com/cup-dataset-ffunj/mtpwheelchair_multi - Wheelchairs without people in label
+4. _Wheelchairs_1puaq_ - https://universe.roboflow.com/mrsaixa-nwonm/wheelchairs-1puaq - Usually wheelchairs without people in label
+5. _Wheelchair_chaudhari_ - https://universe.roboflow.com/manasi-chaudhari-ilink-systems-com/wheelchair-yy3bm - Wheelchairs and people separately
+6. _Mobility_ - https://universe.roboflow.com/lmao/mobility-aids-dioog - Various things, people with wheelchairs/cane/crutch in same label, bicycles (there is people with walking frame but only 1000 images with same person)
+7. _MobilityDetection_ - https://universe.roboflow.com/mobilityaids/wheelchair-detection-hh3io - Various things, people with wheelchairs/cane/crutch in same label, stroller separately, people with walking frame (but 50% is with human in label, and other 50% is without human)
+8. _BikeOnly_ - https://universe.roboflow.com/usthinternship/bike-only - bicycles
+9. _BicycleSet_ - https://universe.roboflow.com/my-workplace-1x5io/bicycle-hbmem - bicycles
+10. _ElectricScooter_ - https://universe.roboflow.com/tetra/electric-scooter-oezqo - electric scooter
+11. _ElectricScooter2_ - https://universe.roboflow.com/delivery/trott - electric scooter
+12. _Suitcase_ - https://universe.roboflow.com/roboflow-madi/airport-luggage - luggage
+13. _Stroller_ - https://universe.roboflow.com/kpz3/stroller-tdpar - strollers wihout people in label
+14. _Blind_ - https://universe.roboflow.com/kpz1/blind-vecl4 - Canes without people in label
+15. _Wheelchair_ - https://universe.roboflow.com/kpz2/wheelchair-grmuz - Mostly wheelchairs without people in label
+16. _Child_Adult_Ederly_ - https://universe.roboflow.com/kpz2/child-adult-elderly - Detecting all people as **_Adult in Dataset2/3/4_**
 
 #
 

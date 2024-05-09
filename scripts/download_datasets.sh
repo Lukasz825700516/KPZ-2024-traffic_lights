@@ -15,7 +15,7 @@ i=1
 (cat "$DATASET_VERSION_FILE") | while IFS=";" read -r dataset_dir dataset_link
 do
     if [ $i -gt 1 ]; then
-        echo "DIR: $dataset_dir"
+        echo "DATASET: $dataset_dir"
         echo "LINK: $dataset_link"
         curl -L "$dataset_link" > "$temporary_file"
         unzip -n "$temporary_file" -d "$dataset_path/$dataset_dir"
