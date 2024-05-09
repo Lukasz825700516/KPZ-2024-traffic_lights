@@ -37,7 +37,7 @@ def main() -> None:
     with TrafficLights() as traffic_lights:
 
         if args.source.isdigit():
-            source = str(args.source)
+            source = int(args.source)
         else:
             source = args.source
 
@@ -46,12 +46,12 @@ def main() -> None:
             start_time = time.time()
 
             frame_returned, frame = cap.read()
-            if not frame_returned:  
+            if not frame_returned:
                 break
 
             predictions = model(frame, verbose=False, conf=minimal_detection_confidence, iou=0.5)
             annotated_frame = predictions[0].plot()
-            
+
             cv2.imshow("Smart Pedestrian Crossing", annotated_frame)
 
             end_time = time.time()
