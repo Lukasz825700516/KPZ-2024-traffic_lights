@@ -65,7 +65,8 @@ def save_results(hyperparameters: Dict[str, str], model, metrics, results, task:
         # signature = mlflow.models.infer_signature(None, results)
 
         for key, value in metrics.results_dict.items():
-            mlflow.log_metric(key, value)
+            k = key.replace("/", "_").replace("(", "_").replace(")", "_")
+            mlflow.log_metric(k, value)
 
         mlflow.log_params(hyperparameters)
         mlflow.log_param("ap_class_index", metrics.ap_class_index.tolist())
