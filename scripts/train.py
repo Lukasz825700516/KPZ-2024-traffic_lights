@@ -8,6 +8,8 @@ import argparse
 from typing import Dict
 import mlflow
 from ultralytics import YOLO
+import dotenv
+import os
 
 def print_warning(text: str) -> None:
     print(f'\033[93m{text}\033[0m')
@@ -51,9 +53,11 @@ def remove_non_yolo_arguments(all_args):
 
 
 def save_results(hyperparameters: Dict[str, str], model, metrics, results, task: str, goal: str) -> None:
-    host = '127.0.0.1'
-    port = '8080'
-    mlflow.set_tracking_uri(uri=f'http://{host}:{port}')
+    dotenv.load_dotenv()
+    credentials = os.environ['MLFLOW_CREDENTIALS']
+    host = 'ml.lukaszm.xyz'
+    port = '80'
+    mlflow.set_tracking_uri(uri=f'https://{credentials}@{host}:{port}')
 
     mlflow.set_experiment(f'yolo-{task}')
     with mlflow.start_run():
