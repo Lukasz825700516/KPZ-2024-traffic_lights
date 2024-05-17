@@ -62,7 +62,7 @@ def save_results(hyperparameters: Dict[str, str], model, metrics, results, task:
     with mlflow.start_run():
 
         mlflow.set_tag('Goal', goal)
-        signature = mlflow.models.infer_signature(None, results)
+        # signature = mlflow.models.infer_signature(None, results)
 
         for key, value in metrics.results_dict.items():
             mlflow.log_metric(key, value)
@@ -78,7 +78,7 @@ def save_results(hyperparameters: Dict[str, str], model, metrics, results, task:
         mlflow.pytorch.log_model(
             pytorch_model=model,
             artifact_path='runs/',
-            signature=signature,
+            # signature=signature,
             registered_model_name='YOLO8n',
         )
      
