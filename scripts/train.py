@@ -10,6 +10,7 @@ import mlflow
 from ultralytics import YOLO
 import dotenv
 import os
+import tempfile
 
 def print_warning(text: str) -> None:
     print(f'\033[93m{text}\033[0m')
@@ -31,6 +32,7 @@ def parse_arguments():
         
     parser.add_argument('-d', '--data', type=pathlib.Path, required=True, help="The path to the data.yaml file, which defines a dataset structure.")
     parser.add_argument('-v', '--verbose', type=bool, default=False, help="Specifies if training should print a lot of details (True) or minimum (False).")
+    parser.add_argument('-p', '--project', type=pathlib.Path, default=tempfile.mkdtemp(), help="Specifies where artifacts should be saved. Defaults to tempdir")
     
     return parser.parse_args()   
 
@@ -76,12 +78,14 @@ def save_results(hyperparameters: Dict[str, str], model, metrics, results, task:
         mlflow.log_param("speed", metrics.speed)
         mlflow.log_param("task", metrics.task)
 
-        mlflow.pytorch.log_model(
-            pytorch_model=model,
-            artifact_path='runs/',
-            # signature=signature,
-            registered_model_name='YOLO8n',
-        )
+        # mlflow.pytorch.log_model(
+            # pytorch_model=model,
+            # artifact_path='runs/',
+            # # signature=signature,
+            # registered_model_name='YOLO8n',
+        # )
+
+        mlflow.log_artifact(hyperparameters['project'])
      
 
 def train_locally(yolo_args: Dict[str, str], goal: str, memory: str, task: str):
