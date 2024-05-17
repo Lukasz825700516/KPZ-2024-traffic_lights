@@ -7,10 +7,11 @@ from pygame import gfxdraw
 from TrafficLights import TrafficLights
 from LightState import LightState
 
-MINIMAL_DETECTION_CONFIDENCE = 0.5
-IOU = 0.5
-window_size = (700, 700)
-background_color = pygame.Color(255, 255, 255)
+MINIMAL_DETECTION_CONFIDENCE = 0.5 # [0, 1]
+IOU = 0.5 # [0, 1]
+TICK_PERIOD = 75 # in frames
+window_size = (700, 700) # in pixels
+background_color = pygame.Color(255, 255, 255) # RGBA
 
 
 def draw_light(screen, position, color: pygame.Color) -> None:
@@ -42,6 +43,7 @@ def main() -> None:
     if not pygame.font:
         raise Warning("Fonts are disabled.")
 
+    pygame.display.set_caption('Intelligent Traffic Ligths')
     parser = create_parser()
     args = parser.parse_args()
 
@@ -72,6 +74,7 @@ def main() -> None:
 
         window_center = ( int(window_size[0]/2), int(window_size[1]/2) )
 
+        frame_counter = 0
         while running:
 
             cap = cv2.VideoCapture(source)
@@ -98,6 +101,12 @@ def main() -> None:
                 case LightState.GREEN:
                     light_color = pygame.Color(0, 255, 0)
 
+                case LightState.BLINKING_GREEN:
+                    if frame_counter < TICK_PERIOD/1.7:
+                        light_color = pygame.Color(0, 255, 0)
+                    else:
+                        light_color = background_color
+
                 case other:
                     raise Warning(f'Unknown color of the traffic light: {other}.')
 
@@ -110,6 +119,9 @@ def main() -> None:
 
             pygame.display.flip()
             clock.tick(args.framerate)
+
+            frame_counter += 1
+            frame_counter %= TICK_PERIOD
 
         cap.release()
 

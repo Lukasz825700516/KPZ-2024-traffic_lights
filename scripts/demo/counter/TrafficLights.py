@@ -75,6 +75,9 @@ class TrafficLights:
         self.__extend_time_after_detection(classes_detected)
 
     def get_state(self) -> LightState:
+        START_BLINKING_WHEN_LEFT = 3
+        if self.__state == LightState.GREEN and self.__time_left <= START_BLINKING_WHEN_LEFT and self.__time_left > 0:
+            return LightState.BLINKING_GREEN
         return self.__state
 
     def get_time_left(self) -> int:
