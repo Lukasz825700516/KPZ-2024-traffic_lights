@@ -77,7 +77,7 @@ def save_results(hyperparameters: Dict[str, str], model, metrics, results, task:
 
         mlflow.pytorch.log_model(
             pytorch_model=model,
-            artifact_path='last_run/',
+            artifact_path='runs/',
             signature=signature,
             registered_model_name='YOLO8n',
         )
