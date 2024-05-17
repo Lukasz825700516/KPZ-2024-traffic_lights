@@ -56,8 +56,7 @@ def save_results(hyperparameters: Dict[str, str], model, metrics, results, task:
     dotenv.load_dotenv()
     credentials = os.environ['MLFLOW_CREDENTIALS']
     host = 'ml.lukaszm.xyz'
-    port = '80'
-    mlflow.set_tracking_uri(uri=f'https://{credentials}@{host}:{port}')
+    mlflow.set_tracking_uri(uri=f'https://{credentials}@{host}')
 
     mlflow.set_experiment(f'yolo-{task}')
     with mlflow.start_run():
