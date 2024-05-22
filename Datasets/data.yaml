@@ -1,12 +1,13 @@
 names:
-  - Adult
   - Child
   - Elderly
+  - Adult
   - Wheelchair
   - Blind
   - Suitcase
   - Stroller
-nc: 8
+  - Bicycle
+  - Scooter
 path: ../KPZ-2024-traffic_lights/Datasets
 test: test/images
 train: train/images
