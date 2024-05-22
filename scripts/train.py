@@ -43,7 +43,7 @@ def remove_non_yolo_arguments(all_args):
         'goal',
         'memory',
         'task',
-        'versioin'
+        'version'
     ]
 
     all_args = vars(all_args)
@@ -66,7 +66,6 @@ def save_results(non_yolo_args: Dict[str, str], hyperparameters: Dict[str, str],
     with mlflow.start_run():
 
         mlflow.set_tag('Goal', goal)
-        # signature = mlflow.models.infer_signature(None, results)
 
         for key, value in metrics.results_dict.items():
             k = key.replace("/", "_").replace("(", "_").replace(")", "_")
@@ -80,13 +79,6 @@ def save_results(non_yolo_args: Dict[str, str], hyperparameters: Dict[str, str],
         mlflow.log_param("speed", metrics.speed)
         mlflow.log_param("task", metrics.task)
         mlflow.log_param("dataset", non_yolo_args["version"])
-
-        # mlflow.pytorch.log_model(
-            # pytorch_model=model,
-            # artifact_path='runs/',
-            # # signature=signature,
-            # registered_model_name='YOLO8n',
-        # )
 
         mlflow.log_artifact(hyperparameters['project'])
      
