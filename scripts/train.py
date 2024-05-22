@@ -30,6 +30,7 @@ def parse_arguments():
     parser.add_argument('-g', '--goal', choices=['transfer-learning', 'fine-tuning', 'from-scratch'], default="transfer-learning", help='Choose whether to train all layers (learning-from-scratch), a few last layers (transfer-learning) or the very last layer (fine-tuning).')
     parser.add_argument('-t', '--task', choices=['classify', 'detect'], help="Determine whether to train the model for classification or object detection.")
         
+    parser.add_argument('-V', '--version', type=str, required=True, help="The version of dataset in use.")
     parser.add_argument('-d', '--data', type=pathlib.Path, required=True, help="The path to the data.yaml file, which defines a dataset structure.")
     parser.add_argument('-v', '--verbose', type=bool, default=False, help="Specifies if training should print a lot of details (True) or minimum (False).")
     parser.add_argument('-p', '--project', type=pathlib.Path, default=tempfile.mkdtemp(), help="Specifies where artifacts should be saved. Defaults to tempdir")
@@ -41,7 +42,8 @@ def remove_non_yolo_arguments(all_args):
         'location',
         'goal',
         'memory',
-        'task'
+        'task',
+        'versioin'
     ]
 
     all_args = vars(all_args)
@@ -54,7 +56,7 @@ def remove_non_yolo_arguments(all_args):
     return yolo_args
 
 
-def save_results(hyperparameters: Dict[str, str], model, metrics, results, task: str, goal: str) -> None:
+def save_results(non_yolo_args: Dict[str, str], hyperparameters: Dict[str, str], model, metrics, results, task: str, goal: str) -> None:
     dotenv.load_dotenv()
     credentials = os.environ['MLFLOW_CREDENTIALS']
     host = 'ml.lukaszm.xyz'
@@ -77,6 +79,7 @@ def save_results(hyperparameters: Dict[str, str], model, metrics, results, task:
         mlflow.log_param("plot", metrics.plot)
         mlflow.log_param("speed", metrics.speed)
         mlflow.log_param("task", metrics.task)
+        mlflow.log_param("dataset", non_yolo_args["version"])
 
         # mlflow.pytorch.log_model(
             # pytorch_model=model,
@@ -88,7 +91,7 @@ def save_results(hyperparameters: Dict[str, str], model, metrics, results, task:
         mlflow.log_artifact(hyperparameters['project'])
      
 
-def train_locally(yolo_args: Dict[str, str], goal: str, memory: str, task: str):
+def train_locally(non_yolo_args: Dict[str, str], yolo_args: Dict[str, str], goal: str, memory: str, task: str):
     print("Training locally")
         
     preset_args = {
@@ -125,13 +128,14 @@ def train_locally(yolo_args: Dict[str, str], goal: str, memory: str, task: str):
     results = model.train(**yolo_args)
     metrics = model.val(data=yolo_args['data'])
 
-    save_results(yolo_args, model, metrics, results, task, goal)
+    save_results(non_yolo_args, yolo_args, model, metrics, results, task, goal)
 
 
 def main():
     args = parse_arguments()
     yolo_args = remove_non_yolo_arguments(args)
-    train_locally(yolo_args, args.goal, args.memory, args.task)
+    non_yolo_args = { key: vars(args)[key] for key in vars(args) if key not in yolo_args }
+    train_locally(non_yolo_args, yolo_args, args.goal, args.memory, args.task)
 
 if __name__ == '__main__':
     main()
