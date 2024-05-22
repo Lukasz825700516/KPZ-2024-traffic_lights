@@ -6,7 +6,6 @@ names:
   - Blind
   - Suitcase
   - Stroller
-  - Bicycle
 nc: 8
 path: ../KPZ-2024-traffic_lights/Datasets
 test: test/images

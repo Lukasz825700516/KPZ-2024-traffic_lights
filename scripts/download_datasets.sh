@@ -1,27 +1,26 @@
-#!/bin/sh
+#!/bin/sh 
+
+DATASET_VERSION_FILE=${1:?"Path to dataset version file not provided: download_dataset.sh path_to_dataset_version_file"}
+
+if ! [ -f "$DATASET_VERSION_FILE" ]; then
+    echo "Dataset version file doesn't exist!"
+    exit
+fi
 
 dataset_path="Datasets"
-
-dataset_links="https://universe.roboflow.com/ds/Kl4NM4lIXU?key=zGmHdmdyxO \
-https://universe.roboflow.com/ds/rrhgYOwewJ?key=S80EUFU8ME \
-https://universe.roboflow.com/ds/GGOHURobzV?key=GRIyo7vDjZ \
-https://universe.roboflow.com/ds/RFkCt0neqM?key=1cAkukn7Qu \
-https://universe.roboflow.com/ds/g2Rulh3EIN?key=cMHsiqOBCG"
-
-dataset_dirs="Blind \
-Stroller \
-Child_Elderly_Adult \
-Wheelchair \
-Suitcase"
 
 temporary_file=$dataset_path/tmp.zip
 
 i=1
-for link in $dataset_links; do
-    directory=$(echo "$dataset_dirs" | cut -d ' ' -f "$i")
-    curl -L "$link" > "$temporary_file"
-    unzip -n "$temporary_file" -d "$dataset_path/$directory"
-    i=$((i + 1))
+(cat "$DATASET_VERSION_FILE") | while IFS=";" read -r dataset_dir dataset_link
+do
+    if [ $i -gt 1 ]; then
+        echo "DATASET: $dataset_dir"
+        echo "LINK: $dataset_link"
+        curl -L "$dataset_link" > "$temporary_file"
+        unzip -n "$temporary_file" -d "$dataset_path/$dataset_dir"
+    fi
+    i=$((i+1))
 done
 
 rm "$temporary_file"

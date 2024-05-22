@@ -4,5 +4,6 @@ artifacts/*
 .env
 __pycache__
 
-Datasets/
+Datasets/*
 !Datasets/data.yaml
+!Datasets/versions/
