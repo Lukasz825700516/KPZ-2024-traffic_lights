@@ -6,7 +6,6 @@ import sys
 import pathlib
 import argparse
 from typing import Dict
-import mlflow
 from ultralytics import YOLO
 import dotenv
 import os
@@ -58,29 +57,6 @@ def remove_non_yolo_arguments(all_args):
     return yolo_args
 
 
-def save_results(non_yolo_args: Dict[str, str], hyperparameters: Dict[str, str], model, metrics, results, task: str, goal: str) -> None:
-
-    mlflow.set_experiment(f'yolo-{task}')
-    with mlflow.start_run():
-
-        mlflow.set_tag('Goal', goal)
-
-        for key, value in metrics.results_dict.items():
-            k = key.replace("/", "_").replace("(", "_").replace(")", "_")
-            mlflow.log_metric(k, value)
-
-        mlflow.log_params(hyperparameters)
-        mlflow.log_param("ap_class_index", metrics.ap_class_index.tolist())
-        mlflow.log_param("curves", metrics.curves)
-        mlflow.log_param("names", metrics.names)
-        mlflow.log_param("plot", metrics.plot)
-        mlflow.log_param("speed", metrics.speed)
-        mlflow.log_param("task", metrics.task)
-        mlflow.log_param("dataset", non_yolo_args["version"])
-
-        mlflow.log_artifact(hyperparameters['project'])
-     
-
 def train_locally(yolo_args: Dict[str, str], goal: str, memory: str, task: str):
     print("Training locally")
         
@@ -117,10 +93,6 @@ def train_locally(yolo_args: Dict[str, str], goal: str, memory: str, task: str):
     model = YOLO('yolov8n.pt')
     results = model.train(**yolo_args)
     metrics = model.val(data=yolo_args['data'])
-
-    # done automagically
-    # save_results(non_yolo_args, yolo_args, model, metrics, results, task, goal)
-
 
 def main():
     dotenv.load_dotenv()
