@@ -12,6 +12,8 @@ import dotenv
 import os
 import tempfile
 
+import ultralytics
+
 def print_warning(text: str) -> None:
     print(f'\033[93m{text}\033[0m')
 
@@ -57,10 +59,6 @@ def remove_non_yolo_arguments(all_args):
 
 
 def save_results(non_yolo_args: Dict[str, str], hyperparameters: Dict[str, str], model, metrics, results, task: str, goal: str) -> None:
-    dotenv.load_dotenv()
-    credentials = os.environ['MLFLOW_CREDENTIALS']
-    host = 'ml.lukaszm.xyz'
-    mlflow.set_tracking_uri(uri=f'https://{credentials}@{host}')
 
     mlflow.set_experiment(f'yolo-{task}')
     with mlflow.start_run():
@@ -83,7 +81,7 @@ def save_results(non_yolo_args: Dict[str, str], hyperparameters: Dict[str, str],
         mlflow.log_artifact(hyperparameters['project'])
      
 
-def train_locally(non_yolo_args: Dict[str, str], yolo_args: Dict[str, str], goal: str, memory: str, task: str):
+def train_locally(yolo_args: Dict[str, str], goal: str, memory: str, task: str):
     print("Training locally")
         
     preset_args = {
@@ -120,14 +118,22 @@ def train_locally(non_yolo_args: Dict[str, str], yolo_args: Dict[str, str], goal
     results = model.train(**yolo_args)
     metrics = model.val(data=yolo_args['data'])
 
-    save_results(non_yolo_args, yolo_args, model, metrics, results, task, goal)
+    # done automagically
+    # save_results(non_yolo_args, yolo_args, model, metrics, results, task, goal)
 
 
 def main():
+    dotenv.load_dotenv()
+    credentials = os.environ['MLFLOW_CREDENTIALS']
+    host = 'ml.lukaszm.xyz'
+
+    ultralytics.settings.update({'mlflow': True})
+    os.environ['MLFLOW_EXPERIMENT_NAME'] = 'yolo-None'
+    os.environ['MLFLOW_TRACKING_URI'] = f'https://{credentials}@{host}'
+
     args = parse_arguments()
     yolo_args = remove_non_yolo_arguments(args)
-    non_yolo_args = { key: vars(args)[key] for key in vars(args) if key not in yolo_args }
-    train_locally(non_yolo_args, yolo_args, args.goal, args.memory, args.task)
+    train_locally(yolo_args, args.goal, args.memory, args.task)
 
 if __name__ == '__main__':
     main()
