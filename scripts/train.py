@@ -31,7 +31,6 @@ def parse_arguments():
     parser.add_argument('-g', '--goal', choices=['transfer-learning', 'fine-tuning', 'from-scratch'], default="transfer-learning", help='Choose whether to train all layers (learning-from-scratch), a few last layers (transfer-learning) or the very last layer (fine-tuning).')
     parser.add_argument('-t', '--task', choices=['classify', 'detect'], help="Determine whether to train the model for classification or object detection.")
         
-    parser.add_argument('-V', '--version', type=str, required=True, help="The version of dataset in use.")
     parser.add_argument('-d', '--data', type=pathlib.Path, required=True, help="The path to the data.yaml file, which defines a dataset structure.")
     parser.add_argument('-v', '--verbose', type=bool, default=False, help="Specifies if training should print a lot of details (True) or minimum (False).")
     parser.add_argument('-p', '--project', type=pathlib.Path, default=tempfile.mkdtemp(), help="Specifies where artifacts should be saved. Defaults to tempdir")
@@ -44,7 +43,6 @@ def remove_non_yolo_arguments(all_args):
         'goal',
         'memory',
         'task',
-        'version'
     ]
 
     all_args = vars(all_args)
