@@ -70,6 +70,9 @@ def main():
     for dataset in whole_datasets:
         shutil.rmtree(dataset_dir / dataset)
 
+    for i in range(10): 
+        print(f'change lights in {i} seconds')
+
     print('Successfully merged the datasets!')
 
 if __name__ == "__main__":
