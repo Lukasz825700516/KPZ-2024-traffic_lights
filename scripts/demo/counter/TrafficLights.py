@@ -13,12 +13,14 @@ class TrafficLights:
         self.__is_running = False
 
         self.__time_increment = { # in seconds
-            "Elderly" : 9,
-            "Child" : 9,
             "Adult" : 0,
+            "Child" : 9,
+            "Elderly" : 9,
             "Wheelchair" : 15,
             "Blind" : 15,
             "Suitcase" : 12,
+            "Stroller" : 7,
+            "X" : 0
         }
 
         self.__classes =  list( self.__time_increment.keys() )
@@ -41,28 +43,41 @@ class TrafficLights:
             case LightState.GREEN:
                 self.__state = LightState.RED
                 self.__time_left = self.__base_red_duration
+                self.__already_detected = {class_name: False for class_name in self.__classes}
             case LightState.RED:
                 self.__state = LightState.GREEN
                 self.__time_left = self.__base_green_duration + self.__next_green_bouns_time
                 self.__next_green_bouns_time = 0
-                self.__already_detected = {class_name: False for class_name in self.__classes}
             case other:
                 raise Exception(f"Unexpected state of TrafficLights: {other}")
 
     def __extend_time_after_detection(self, detected_classes: list[int]) -> None:
          for class_id in detected_classes:
 
-            class_name = self.__convert_class_ID_to_name(class_id)
-
-            if self.__already_detected[ class_name ]:
+            class_name_in = self.__convert_class_ID_to_name(class_id)
+            time_inc = 0
+            max_time_inc_already = 0
+            
+            if self.__already_detected[ class_name_in ]:
                 continue
-
+            
+            for class_name, is_detected in self.__already_detected.items():
+                if is_detected == True:
+                    if self.__time_increment[class_name] > max_time_inc_already :
+                        max_time_inc_already = self.__time_increment[class_name]
+            
+            if self.__time_increment[class_name_in] >= max_time_inc_already :
+                time_inc = self.__time_increment[class_name_in] - max_time_inc_already
+            else:
+                time_inc = self.__time_increment[class_name_in]
+                
             match self.__state:
                 case LightState.GREEN:
-                    self.__time_left += self.__time_increment[ class_name ]
-                    self.__already_detected[ class_name ] = True
+                    self.__time_left += time_inc
+                    self.__already_detected[ class_name_in ] = True
                 case LightState.RED:
-                    self.__next_green_bouns_time += self.__time_increment[ class_name ]
+                    self.__next_green_bouns_time += time_inc
+                    self.__already_detected[ class_name_in ] = True
 
     def __convert_class_ID_to_name(self, class_id: int) -> str:
         return self.__classes[ class_id ]
