@@ -15,6 +15,7 @@ def create_parser() -> argparse.ArgumentParser:
     parser.add_argument('weights', type=str, help='File containing YOLO\'s weights and biases.')
     parser.add_argument('source', type=str, help='Source of video stream such as a camera input or a file. In case of camera, use its id (usually 0). In case of a file, use its path.')
     parser.add_argument('frame_duration', type=float, nargs='?', default=0.04, help='A minimal duration of a frame in seconds. Notice that processing a frame and inference may take longer than this.')
+    parser.add_argument('lights', type=str, default='', help='Address of lights server')
 
     return parser
 
@@ -66,7 +67,7 @@ def main() -> None:
             detected_classes = [ int(detection.cls) for detection in predictions[0].boxes ]
 
             traffic_lights.update(args.frame_duration,  detected_classes)
-            traffic_lights.display()
+            traffic_lights.display(args.lights)
 
     cap.release()
     cv2.destroyAllWindows()
