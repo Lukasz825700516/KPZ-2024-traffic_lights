@@ -6,10 +6,12 @@ import sys
 import pathlib
 import argparse
 from typing import Dict
-import mlflow
 from ultralytics import YOLO
 import dotenv
 import os
+import tempfile
+
+import ultralytics
 
 def print_warning(text: str) -> None:
     print(f'\033[93m{text}\033[0m')
@@ -31,6 +33,7 @@ def parse_arguments():
         
     parser.add_argument('-d', '--data', type=pathlib.Path, required=True, help="The path to the data.yaml file, which defines a dataset structure.")
     parser.add_argument('-v', '--verbose', type=bool, default=False, help="Specifies if training should print a lot of details (True) or minimum (False).")
+    parser.add_argument('-p', '--project', type=pathlib.Path, default=tempfile.mkdtemp(), help="Specifies where artifacts should be saved. Defaults to tempdir")
     
     return parser.parse_args()   
 
@@ -39,7 +42,7 @@ def remove_non_yolo_arguments(all_args):
         'location',
         'goal',
         'memory',
-        'task'
+        'task',
     ]
 
     all_args = vars(all_args)
@@ -51,38 +54,6 @@ def remove_non_yolo_arguments(all_args):
 
     return yolo_args
 
-
-def save_results(hyperparameters: Dict[str, str], model, metrics, results, task: str, goal: str) -> None:
-    dotenv.load_dotenv()
-    credentials = os.environ['MLFLOW_CREDENTIALS']
-    host = 'ml.lukaszm.xyz'
-    port = '80'
-    mlflow.set_tracking_uri(uri=f'https://{credentials}@{host}:{port}')
-
-    mlflow.set_experiment(f'yolo-{task}')
-    with mlflow.start_run():
-
-        mlflow.set_tag('Goal', goal)
-        signature = mlflow.infer_signature(hyperparameters['data'], results)
-
-        for key, value in metrics.results_dict.items():
-            mlflow.log_metric(key, value)
-
-        mlflow.log_params(hyperparameters)
-        mlflow.log_param("ap_class_index", metrics.ap_class_index.tolist())
-        mlflow.log_param("curves", metrics.curves)
-        mlflow.log_param("names", metrics.names)
-        mlflow.log_param("plot", metrics.plot)
-        mlflow.log_param("speed", metrics.speed)
-        mlflow.log_param("task", metrics.task)
-
-        mlflow.pytorch.log_model(
-            pytorch_model=model,
-            artifact_path='last_run/',
-            signature=signature,
-            registered_model_name='YOLO8n',
-        )
-     
 
 def train_locally(yolo_args: Dict[str, str], goal: str, memory: str, task: str):
     print("Training locally")
@@ -121,10 +92,15 @@ def train_locally(yolo_args: Dict[str, str], goal: str, memory: str, task: str):
     results = model.train(**yolo_args)
     metrics = model.val(data=yolo_args['data'])
 
-    save_results(yolo_args, model, metrics, results, task, goal)
-
-
 def main():
+    dotenv.load_dotenv()
+    credentials = os.environ['MLFLOW_CREDENTIALS']
+    host = 'ml.lukaszm.xyz'
+
+    ultralytics.settings.update({'mlflow': True})
+    os.environ['MLFLOW_EXPERIMENT_NAME'] = 'yolo-None'
+    os.environ['MLFLOW_TRACKING_URI'] = f'https://{credentials}@{host}'
+
     args = parse_arguments()
     yolo_args = remove_non_yolo_arguments(args)
     train_locally(yolo_args, args.goal, args.memory, args.task)

@@ -1,4 +1,6 @@
 from LightState import LightState
+import sys
+import requests
 import os
 
 class TrafficLights:
@@ -74,11 +76,21 @@ class TrafficLights:
         self.__update_state(elapsed_time)
         self.__extend_time_after_detection(classes_detected)
     
-    def display(self) -> None:
+    def display(self, addr:str) -> None:
         os.system("clear")
         green = "32"  
         red = "31"  
 
-        color = green if self.__state == LightState.GREEN else red
+        if self.__state == LightState.GREEN:
+            color = green
+            requests.post(f'{addr}/green')
+            requests.post(f'{addr}/cuntdown', f'{{"color":"green","number":{self.__time_left}}}')
+        if self.__state == LightState.RED:
+            color = green
+            requests.post(f'{addr}/red')
+            requests.post(f'{addr}/cuntdown', f'{{"color":"red","number":{self.__time_left}}}')
+
+
+
 
         print(f"\033[{color}m\u25CF\033[0m", f"Timer: {int(self.__time_left)}")
